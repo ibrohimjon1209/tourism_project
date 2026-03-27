@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useLocation, Link } from 'react-router-dom'
 import { 
   Globe, MagnifyingGlass, List, CaretDown, Clock, X, 
   InstagramLogo, FacebookLogo, YoutubeLogo,
@@ -8,6 +9,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Navbar = () => {
+  const location = useLocation()
+  const isHomePage = location.pathname === '/'
+  
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedLang, setSelectedLang] = useState('Uz')
@@ -27,15 +31,15 @@ const Navbar = () => {
   ]
 
   const menuItems = [
-    { label: "Bosh sahifa", icon: House },
-    { label: "O'zbekiston haqida", icon: Info },
-    { label: "Turistik joylar", icon: MapPin },
-    { label: "Interaktiv xarita", icon: MapTrifold },
-    { label: "Sayohat yo'nalishlari", icon: NavigationArrow },
-    { label: "Yaqindagi turistik obyektlar", icon: MapPinArea },
-    { label: "Sayohat kalkulyatori", icon: Calculator },
-    { label: "Viloyatlar turizmi", icon: Compass },
-    { label: "Bog'lanish", icon: Phone }
+    { label: "Bosh sahifa", icon: House, path: "/" },
+    { label: "O'zbekiston haqida", icon: Info, path: "/place_info" },
+    { label: "Turistik joylar", icon: MapPin, path: "/tourist_places" },
+    { label: "Interaktiv xarita", icon: MapTrifold, path: "/map" },
+    { label: "Sayohat yo'nalishlari", icon: NavigationArrow, path: "/tour_direction" },
+    { label: "Yaqindagi turistik obyektlar", icon: MapPinArea, path: "/nearby_places" },
+    { label: "Sayohat kalkulyatori", icon: Calculator, path: "#" },
+    { label: "Viloyatlar turizmi", icon: Compass, path: "/regional" },
+    { label: "Bog'lanish", icon: Phone, path: "#" }
   ]
 
   useEffect(() => {
@@ -86,24 +90,22 @@ const Navbar = () => {
     localStorage.setItem('searchHistory', JSON.stringify(updated))
   }
 
+  const navBgClass = () => {
+    if (!isHomePage) return 'bg-black shadow-xl py-4 md:py-[24px]'
+    return isScrolled ? 'bg-black/95 backdrop-blur-lg py-4 md:py-[24px] shadow-xl' : 'bg-transparent py-[30px] md:py-[40px]'
+  }
+
   return (
     <>
-      <motion.nav 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className={`fixed top-0 left-0 w-full flex items-center justify-between px-[20px] md:px-[60px] transition-all duration-500 z-[100] ${
-          isScrolled ? 'bg-black/95 backdrop-blur-lg py-4 md:py-[24px] shadow-2xl' : 'bg-transparent py-[30px] md:py-[40px]'
-        }`}
-      >
-        <h1 className='font-inter font-bold text-[24px] text-white whitespace-nowrap cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2'>
+      <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-[20px] md:px-[60px] transition-all duration-500 z-[100] ${navBgClass()}`}>
+        <Link to="/" className='font-inter font-bold text-[24px] text-white whitespace-nowrap cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2'>
           UzTurism
-        </h1>
+        </Link>
 
         {/* Search Section */}
         <div className='relative hidden md:flex items-center' ref={historyRef}>
           <div className={`w-full md:w-[350px] lg:w-[480px] h-[48px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-start gap-[15px] px-[20px] transition-all duration-500 ${
-            isScrolled || isHistoryOpen ? 'border border-white/20' : 'border border-transparent'
+            isScrolled || isHistoryOpen || !isHomePage ? 'border border-white/20' : 'border border-transparent'
           }`}>
             <MagnifyingGlass size={24} color='white' weight='bold' />
             <input 
@@ -171,7 +173,7 @@ const Navbar = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsLangOpen(!isLangOpen)}
               className={`h-[48px] px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${
-                isScrolled ? 'border border-white/20' : 'border border-transparent'
+                isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
               }`}
             >
               <Globe size={24} color='white' weight='bold' />
@@ -215,17 +217,17 @@ const Navbar = () => {
           <motion.button 
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(true)}
-            className={`h-[48px] md:h-[48px] px-5 lg:px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${
-              isScrolled ? 'border border-white/20' : 'border border-transparent'
+            className={`h-[48px] md:h-[48px] px-[15px] lg:px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${
+              isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
             }`}
           >
-            <List size={32} className="w-8 h-8 lg:w-6 lg:h-6" color='white' weight='bold' />
-            <span className='font-inter font-bold uppercase text-[16px] lg:font-medium text-white hidden sm:block'>
-              Menu
+            <List size={24} color='white' weight='bold' />
+            <span className='font-inter uppercase text-[16px] font-medium text-white'>
+              Menyu
             </span>
           </motion.button>
         </div>
-      </motion.nav>
+      </nav>
 
       <AnimatePresence>
         {isMenuOpen && (
@@ -243,19 +245,21 @@ const Navbar = () => {
 
             <div className='flex items-center justify-between relative z-10'>
               <div className="flex flex-col">
-                <h1 className='font-inter font-bold text-[24px] md:text-[28px] text-[#2552A1] tracking-tight'>UzTourism</h1>
+                <Link to="/" onClick={() => setIsMenuOpen(false)}>
+                  <h1 className='font-inter font-bold text-[24px] md:text-[28px] text-[#2552A1] tracking-tight'>UzTurism</h1>
+                </Link>
               </div>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsMenuOpen(false)}
                 className='flex items-center justify-center h-[48px] w-[48px] md:w-auto md:px-6 md:py-3 rounded-full border border-gray-100 bg-white hover:bg-gray-50 shadow-sm transition-all cursor-pointer group'
               >
-                <X size={32} className='text-gray-600 group-hover:rotate-90 transition-transform duration-300 md:size-5' />
-                <span className='font-inter font-bold text-xs text-gray-600 uppercase tracking-widest hidden md:block md:ml-3'>Yopish</span>
+                <X size={26} weight='bold' className='text-gray-600 group-hover:rotate-90 transition-transform duration-300 md:size-5' />
+                <span className='text-xs font-inter text-[16px] font-bold text-gray-600 uppercase hidden md:block md:ml-2'>Yopish</span>
               </motion.button>
             </div>
 
-            <div className='flex-1 flex flex-col justify-start md:justify-center items-center py-6 md:py-20 relative z-10 overflow-y-auto custom-scrollbar'>
+            <div className='flex-1 flex flex-col justify-start md:justify-center items-center my-6 md:my-20 relative z-10 overflow-y-auto custom-scrollbar'>
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 md:gap-y-10 gap-x-12 w-full max-w-[1400px]'>
                 {menuItems.map((item, index) => (
                   <motion.div 
@@ -265,20 +269,18 @@ const Navbar = () => {
                     transition={{ delay: 0.2 + index * 0.05, duration: 0.4 }}
                     className='group relative flex items-center gap-4 md:gap-6 cursor-pointer py-3 md:py-0'
                   >
-                    <div className="flex items-center gap-4 md:gap-6 w-full">
+                    <Link 
+                      to={item.path} 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-4 md:gap-6 w-full"
+                    >
                       <div className="p-3 md:p-3 rounded-[15px] md:rounded-2xl bg-gray-50 group-hover:bg-[#2552A1]/5 group-hover:scale-110 transition-all duration-300">
                         <item.icon size={26} className="md:size-6 text-gray-400 group-hover:text-[#2552A1] transition-colors" />
                       </div>
                       <span className='font-inter font-bold text-[22px] md:text-[24px] lg:text-[28px] text-gray-800 group-hover:text-[#2552A1] transition-all duration-300 relative whitespace-nowrap overflow-hidden text-ellipsis px-1'>
                         {item.label}
-                        <motion.span 
-                          className="absolute -bottom-1 left-1 h-[2px] bg-[#2552A1] rounded-full hidden md:block"
-                          initial={{ width: 0 }}
-                          whileHover={{ width: '100%' }}
-                          transition={{ duration: 0.3 }}
-                        />
                       </span>
-                    </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -295,9 +297,9 @@ const Navbar = () => {
                     href={social.link}
                     key={idx}
                     whileHover={{ y: -5, scale: 1.1 }}
-                    className='w-11 h-11 md:w-11 md:h-11 rounded-xl bg-gray-50 flex items-center justify-center cursor-pointer text-gray-500 hover:text-[#2552A1] hover:bg-[#2552A1]/5 transition-all'
+                    className='w-11 h-11 md:w-11 md:h-11 rounded-xl bg-gray-50 flex items-center justify-center cursor-pointer text-gray-400 group hover:text-[#2552A1] transition-all'
                   >
-                    <social.icon size={24} weight="bold" />
+                    <social.icon size={32} weight="bold" className="group-hover:scale-110 transition-transform" />
                   </motion.a>
                 ))}
               </div>
@@ -313,4 +315,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar;
