@@ -1,11 +1,11 @@
 import React from 'react'
-import { Airplane } from '@phosphor-icons/react'
+import { AirplaneIcon } from '@phosphor-icons/react'
 
 const Navbar = () => {
   return (
     <nav className="flex items-center justify-between p-4 bg-white shadow-md">
       <div className="flex items-center gap-2">
-        <Airplane size={32} weight="fill" className="text-blue-600" />
+        <AirplaneIcon size={32} weight="fill" className="text-blue-600" />
         <span className="text-xl font-bold">Tourism</span>
       </div>
       <div className="flex gap-6">
@@ -18,4 +18,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default Navbar
