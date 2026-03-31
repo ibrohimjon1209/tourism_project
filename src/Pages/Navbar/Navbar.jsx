@@ -40,9 +40,7 @@ const Navbar = () => {
       about: "O'zbekiston haqida",
       touristPlaces: "Turistik joylar",
       interactiveMap: "Interaktiv xarita",
-      tourDirection: "Sayohat yo'nalishlari",
       nearbyPlaces: "Yaqindagi turistik obyektlar",
-      calculator: "Sayohat kalkulyatori",
       regional: "Viloyatlar turizmi",
       contact: "Bog'lanish"
     },
@@ -101,9 +99,7 @@ const Navbar = () => {
     { label: t.about, icon: Info, path: "/place_info" },
     { label: t.touristPlaces, icon: MapPin, path: "/tourist_places" },
     { label: t.interactiveMap, icon: MapTrifold, path: "/map" },
-    { label: t.tourDirection, icon: NavigationArrow, path: "/tour_direction" },
     { label: t.nearbyPlaces, icon: MapPinArea, path: "/nearby_places" },
-    { label: t.calculator, icon: Calculator, path: "#" },
     { label: t.regional, icon: Compass, path: "/regional" },
     { label: t.contact, icon: Phone, path: "#" }
   ]
