@@ -7,16 +7,74 @@ import yandexTaxi from "./yandex-taxi.png";
 const InteractiveMap = () => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
+
+  useEffect(() => {
+    const handleLangChange = () => setLang(localStorage.getItem('lang') || 'uz');
+    window.addEventListener('langChange', handleLangChange);
+    return () => window.removeEventListener('langChange', handleLangChange);
+  }, []);
+
+  const translations = {
+    uz: {
+      home: "Bosh sahifa",
+      map: "Interaktiv xarita",
+      desc: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining markazi bo'lib, har bir sayyohni sehrli ertaklar olamiga yetaklaydi.",
+      loadingInfo: "Ma'lumot yuklanmoqda...",
+      rating: "baho",
+      yandexMap: "Yandex xarita",
+      googleMap: "Google xarita",
+      searchWeb: "Internetdan qidirish",
+      call: "Qo'ng'iroq qilish",
+      noNumber: "Raqam yo'q",
+      orderTaxi: "Taksi chaqirish",
+      priceEst: "~25 000 so'm"
+    },
+    ru: {
+      home: "Главная",
+      map: "Интерактивная карта",
+      desc: "Центр Великого Шелкового пути ведет каждого туриста в мир волшебных сказок.",
+      loadingInfo: "Загрузка данных...",
+      rating: "оценок",
+      yandexMap: "Яндекс карты",
+      googleMap: "Google карты",
+      searchWeb: "Поиск в интернете",
+      call: "Позвонить",
+      noNumber: "Нет номера",
+      orderTaxi: "Вызвать такси",
+      priceEst: "~25 000 сум"
+    },
+    en: {
+      home: "Home page",
+      map: "Interactive map",
+      desc: "The center of the Great Silk Road leads every tourist into a world of magical fairy tales.",
+      loadingInfo: "Loading data...",
+      rating: "reviews",
+      yandexMap: "Yandex maps",
+      googleMap: "Google maps",
+      searchWeb: "Search web",
+      call: "Call",
+      noNumber: "No number",
+      orderTaxi: "Order taxi",
+      priceEst: "~25,000 UZS"
+    }
+  };
+
+  const t = translations[lang] || translations.uz;
 
   const places = [
     {
       id: 1,
-      name: "Ko'kaldosh madrasasi",
+      name_uz: "Ko'kaldosh madrasasi", name_ru: "Медресе Кукельдаш", name_en: "Kukeldash Madrasah",
       coords: [41.323, 69.24],
-      fallbackAddress: "Toshkent, Alisher Navoiy ko'chasi, 48",
+      fallbackAddress_uz: "Toshkent, Alisher Navoiy ko'chasi, 48", fallbackAddress_ru: "Ташкент, улица Алишера Навои, 48", fallbackAddress_en: "Tashkent, Alisher Navoi street, 48",
       image: "https://placehold.co/600x400/1e3a8a/ffffff?text=Kokaldosh+Madrasasi",
     }
   ];
+
+  const getTranslated = (item, field) => {
+    return item[`${field}_${lang}`] || item[`${field}_uz`] || '';
+  };
 
   const initMap = useCallback(() => {
     if (!window.ymaps) return;
@@ -34,9 +92,9 @@ const InteractiveMap = () => {
       places.forEach((place) => {
         const placemark = new window.ymaps.Placemark(
           place.coords,
-          { hintContent: place.name },
+          { hintContent: getTranslated(place, 'name') },
           { 
-            preset: 'islands#redIcon', // Larger, more visible pin icon
+            preset: 'islands#redIcon',
             iconColor: '#EE2524'
           }
         );
@@ -56,8 +114,8 @@ const InteractiveMap = () => {
 
             const dynamicPlace = {
               ...place,
-              name: properties.get('name') || place.name,
-              address: properties.get('text') || properties.get('description') || place.fallbackAddress,
+              name: properties.get('name') || getTranslated(place, 'name'),
+              address: properties.get('text') || properties.get('description') || getTranslated(place, 'fallbackAddress'),
               rating: 4.8,
               reviews: 1240,
               phone: properties.get('Phone') || properties.get('phone'),
@@ -68,7 +126,8 @@ const InteractiveMap = () => {
             console.warn('Geocode warning (using fallback):', error);
             setSelectedPlace({
               ...place,
-              address: place.fallbackAddress,
+              name: getTranslated(place, 'name'),
+              address: getTranslated(place, 'fallbackAddress'),
               rating: 4.8,
               reviews: 1240
             });
@@ -80,7 +139,7 @@ const InteractiveMap = () => {
         map.geoObjects.add(placemark);
       });
     });
-  }, [places]);
+  }, [places, lang]);
 
   useEffect(() => {
     if (!window.ymaps) {
@@ -116,9 +175,9 @@ const InteractiveMap = () => {
     <div className='min-h-screen bg-white pt-[110px] md:pt-[140px] pb-20 px-5 md:px-[60px]'>
       {/* Breadcrumb - Match other pages' style */}
       <nav className='flex items-center gap-2 text-gray-400 text-sm md:text-base font-inter mb-6 relative z-10'>
-        <Link to="/" className='hover:text-[#2552A1] transition-colors shrink-0'>Bosh sahifa</Link>
+        <Link to="/" className='hover:text-[#2552A1] transition-colors shrink-0'>{t.home}</Link>
         <CaretRight size={14} weight='bold' className='shrink-0' />
-        <span className='text-gray-300 shrink-0'>Interaktiv xarita</span>
+        <span className='text-gray-300 shrink-0'>{t.map}</span>
       </nav>
 
       <motion.header 
@@ -128,10 +187,10 @@ const InteractiveMap = () => {
         className='max-w-[900px] mb-12'
       >
         <h1 className='font-inter font-bold text-[36px] md:text-[52px] text-gray-900 leading-tight mb-4 tracking-tight'>
-          Interaktiv xarita
+          {t.map}
         </h1>
         <p className='font-inter text-gray-500 text-[16px] md:text-[18px] leading-relaxed max-w-[700px] font-medium'>
-          Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining markazi bo'lib, har bir sayyohni sehrli ertaklar olamiga yetaklaydi.
+          {t.desc}
         </p>
       </motion.header>
 
@@ -141,7 +200,7 @@ const InteractiveMap = () => {
         {loading && (
           <div className='absolute top-6 left-6 z-30 bg-white/95 backdrop-blur-lg px-5 py-3 rounded-2xl shadow flex items-center gap-3'>
             <div className='w-5 h-5 border-2 border-[#2552A1] border-t-transparent rounded-full animate-spin'></div>
-            <span className='text-sm text-gray-700 font-medium'>Ma'lumot yuklanmoqda...</span>
+            <span className='text-sm text-gray-700 font-medium'>{t.loadingInfo}</span>
           </div>
         )}
 
@@ -173,7 +232,7 @@ const InteractiveMap = () => {
                   <div className='flex items-center gap-2'>
                     <Star size={14} weight="fill" className='text-yellow-500' />
                     <span className='font-bold text-xs md:text-sm'>{selectedPlace.rating || 4.8}</span>
-                    <span className='text-gray-400 text-[10px] md:text-xs'>({(selectedPlace.reviews || 1240).toLocaleString()} baho)</span>
+                    <span className='text-gray-400 text-[10px] md:text-xs'>({(selectedPlace.reviews || 1240).toLocaleString()} {t.rating})</span>
                   </div>
                   <p className='text-gray-500 text-[11px] md:text-sm leading-relaxed mt-0.5'>{selectedPlace.address}</p>
                 </div>
@@ -184,13 +243,13 @@ const InteractiveMap = () => {
                       onClick={() => openRoute(selectedPlace.coords)}
                       className='flex items-center justify-center bg-[#EE2524] hover:bg-[#d41f1e] text-white py-2.5 md:py-3 px-3 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm transition-all shadow-sm'
                     >
-                      Yandex xarita
+                      {t.yandexMap}
                     </button>
                     <button 
                       onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${selectedPlace.coords?.[0]},${selectedPlace.coords?.[1]}`, '_blank')}
                       className='flex items-center justify-center bg-[#4285F4] hover:bg-[#3367D6] text-white py-2.5 md:py-3 px-3 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm transition-all shadow-sm'
                     >
-                      Google xarita
+                      {t.googleMap}
                     </button>
                   </div>
 
@@ -199,7 +258,7 @@ const InteractiveMap = () => {
                       onClick={() => searchGoogle(selectedPlace.name)}
                       className='flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm transition-all'
                     >
-                      Internetdan qidirish
+                      {t.searchWeb}
                     </button>
 
                     {selectedPlace.phone ? (
@@ -207,11 +266,11 @@ const InteractiveMap = () => {
                         href={`tel:${selectedPlace.phone}`}
                         className='flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm transition-all'
                       >
-                        Qo'ng'iroq qilish
+                        {t.call}
                       </a>
                     ) : (
                       <div className='flex items-center justify-center bg-gray-50 text-gray-300 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm cursor-not-allowed'>
-                        Raqam yo'q
+                        {t.noNumber}
                       </div>
                     )}
                   </div>
@@ -227,9 +286,9 @@ const InteractiveMap = () => {
                         alt="Yandex Go" 
                         className='h-4 md:h-6 w-auto group-hover:scale-110 transition-transform' 
                       />
-                      <span className='text-[11px] md:text-sm font-bold'>Taksi chaqirish</span>
+                      <span className='text-[11px] md:text-sm font-bold'>{t.orderTaxi}</span>
                     </div>
-                    <span className='text-[9px] md:text-xs font-bold opacity-70'>~25 000 so'm</span>
+                    <span className='text-[9px] md:text-xs font-bold opacity-70'>{t.priceEst}</span>
                   </button>
                 </div>
               </div>

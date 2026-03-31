@@ -14,7 +14,73 @@ const Navbar = () => {
   
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [selectedLang, setSelectedLang] = useState('Uz')
+
+  const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
+
+  useEffect(() => {
+    const handleLangChange = () => setLang(localStorage.getItem('lang') || 'uz');
+    window.addEventListener('langChange', handleLangChange);
+    return () => window.removeEventListener('langChange', handleLangChange);
+  }, []);
+
+  const changeLanguage = (newLang) => {
+    localStorage.setItem('lang', newLang);
+    setLang(newLang);
+    window.dispatchEvent(new Event('langChange'));
+  };
+
+  const translations = {
+    uz: {
+      searchPlaceholder: "Yaqindagi joylarni qidirish...",
+      searchHistory: "Qidiruv tarixi",
+      clear: "Tozalash",
+      menu: "Menyu",
+      close: "Yopish",
+      home: "Bosh sahifa",
+      about: "O'zbekiston haqida",
+      touristPlaces: "Turistik joylar",
+      interactiveMap: "Interaktiv xarita",
+      tourDirection: "Sayohat yo'nalishlari",
+      nearbyPlaces: "Yaqindagi turistik obyektlar",
+      calculator: "Sayohat kalkulyatori",
+      regional: "Viloyatlar turizmi",
+      contact: "Bog'lanish"
+    },
+    ru: {
+      searchPlaceholder: "Поиск ближайших мест...",
+      searchHistory: "История поиска",
+      clear: "Очистить",
+      menu: "Меню",
+      close: "Закрыть",
+      home: "Главная",
+      about: "Об Узбекистане",
+      touristPlaces: "Туристические места",
+      interactiveMap: "Интерактивная карта",
+      tourDirection: "Направления",
+      nearbyPlaces: "Ближайшие туристические объекты",
+      calculator: "Калькулятор путешествий",
+      regional: "Региональный туризм",
+      contact: "Контакты"
+    },
+    en: {
+      searchPlaceholder: "Search nearby places...",
+      searchHistory: "Search history",
+      clear: "Clear",
+      menu: "Menu",
+      close: "Close",
+      home: "Home page",
+      about: "About Uzbekistan",
+      touristPlaces: "Tourist places",
+      interactiveMap: "Interactive map",
+      tourDirection: "Travel directions",
+      nearbyPlaces: "Nearby tourist objects",
+      calculator: "Travel calculator",
+      regional: "Regional tourism",
+      contact: "Contact"
+    }
+  };
+
+  const t = translations[lang] || translations.uz;
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [searchHistory, setSearchHistory] = useState(() => {
@@ -31,15 +97,15 @@ const Navbar = () => {
   ]
 
   const menuItems = [
-    { label: "Bosh sahifa", icon: House, path: "/" },
-    { label: "O'zbekiston haqida", icon: Info, path: "/place_info" },
-    { label: "Turistik joylar", icon: MapPin, path: "/tourist_places" },
-    { label: "Interaktiv xarita", icon: MapTrifold, path: "/map" },
-    { label: "Sayohat yo'nalishlari", icon: NavigationArrow, path: "/tour_direction" },
-    { label: "Yaqindagi turistik obyektlar", icon: MapPinArea, path: "/nearby_places" },
-    { label: "Sayohat kalkulyatori", icon: Calculator, path: "#" },
-    { label: "Viloyatlar turizmi", icon: Compass, path: "/regional" },
-    { label: "Bog'lanish", icon: Phone, path: "#" }
+    { label: t.home, icon: House, path: "/" },
+    { label: t.about, icon: Info, path: "/place_info" },
+    { label: t.touristPlaces, icon: MapPin, path: "/tourist_places" },
+    { label: t.interactiveMap, icon: MapTrifold, path: "/map" },
+    { label: t.tourDirection, icon: NavigationArrow, path: "/tour_direction" },
+    { label: t.nearbyPlaces, icon: MapPinArea, path: "/nearby_places" },
+    { label: t.calculator, icon: Calculator, path: "#" },
+    { label: t.regional, icon: Compass, path: "/regional" },
+    { label: t.contact, icon: Phone, path: "#" }
   ]
 
   useEffect(() => {
@@ -115,7 +181,7 @@ const Navbar = () => {
               onFocus={() => setIsHistoryOpen(true)}
               onClick={() => setIsHistoryOpen(true)}
               onKeyDown={handleKeyDown}
-              placeholder='Yaqindagi joylarni qidirish...' 
+              placeholder={t.searchPlaceholder} 
               className='font-inter navbar-search-input text-[16px] text-white bg-transparent outline-none w-full placeholder:text-gray-400' 
             />
           </div>
@@ -131,12 +197,12 @@ const Navbar = () => {
                 className='absolute top-[55px] left-0 w-full bg-[#1A1A1A]/85 backdrop-blur-lg rounded-[25px] py-4 shadow-2xl border border-white/10 overflow-hidden'
               >
                 <div className='flex items-center justify-between px-5 pb-2 border-b border-white/5'>
-                  <span className='text-gray-400 text-sm font-medium'>Qidiruv tarixi</span>
+                  <span className='text-gray-400 text-sm font-medium'>{t.searchHistory}</span>
                   <button 
                     onClick={clearHistory}
                     className='cursor-pointer text-red-400 text-xs hover:text-red-300 transition-colors capitalize font-bold'
                   >
-                    Tozalash
+                    {t.clear}
                   </button>
                 </div>
                 <div className='flex flex-col mt-2'>
@@ -178,7 +244,7 @@ const Navbar = () => {
             >
               <Globe size={24} color='white' weight='bold' />
               <span className='font-inter font-medium text-[16px] text-white uppercase select-none'>
-                {selectedLang}
+                {languages.find(l => l.code === lang)?.label || 'Uz'}
               </span>
               <CaretDown 
                 size={18} 
@@ -201,7 +267,7 @@ const Navbar = () => {
                     <div 
                       key={lang.code}
                       onClick={() => {
-                        setSelectedLang(lang.label)
+                        changeLanguage(lang.code)
                         setIsLangOpen(false)
                       }}
                       className='px-[20px] py-[8px] hover:bg-white/10 text-white font-inter font-medium text-[16px] cursor-pointer transition-colors text-center uppercase'
@@ -223,7 +289,7 @@ const Navbar = () => {
           >
             <List size={24} color='white' weight='bold' />
             <span className='font-inter uppercase text-[16px] font-medium text-white'>
-              Menyu
+              {t.menu}
             </span>
           </motion.button>
         </div>
@@ -255,7 +321,7 @@ const Navbar = () => {
                 className='flex items-center justify-center h-[48px] w-[48px] md:w-auto md:px-6 md:py-3 rounded-full border border-gray-100 bg-white hover:bg-gray-50 shadow-sm transition-all cursor-pointer group'
               >
                 <X size={26} weight='bold' className='text-gray-600 group-hover:rotate-90 transition-transform duration-300 md:size-5' />
-                <span className='text-xs font-inter text-[16px] font-bold text-gray-600 uppercase hidden md:block md:ml-2'>Yopish</span>
+                <span className='text-xs font-inter text-[16px] font-bold text-gray-600 uppercase hidden md:block md:ml-2'>{t.close}</span>
               </motion.button>
             </div>
 
