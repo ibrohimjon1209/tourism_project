@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CaretRight, MapPin, Path, Clock, ArrowRight } from '@phosphor-icons/react';
+import { CaretRight, MapPin, Path, Clock, ArrowRight, CurrencyCircleDollar, Warning } from '@phosphor-icons/react';
 import { Link, useParams } from 'react-router-dom';
+import { routeService } from '../../Services/api';
 
 const TourDirectionDetail = () => {
   const { id } = useParams();
+  const [route, setRoute] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
 
   useEffect(() => {
@@ -13,62 +16,98 @@ const TourDirectionDetail = () => {
     return () => window.removeEventListener('langChange', handleLangChange);
   }, []);
 
+  const getTranslated = (obj) => {
+    if (!obj) return '';
+    if (typeof obj === 'string') return obj;
+    return obj[lang] || obj.uz || '';
+  };
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      try {
+        const data = await routeService.getRouteDetail(id);
+        setRoute(data);
+      } catch (error) {
+        console.error('Failed to fetch route detail:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [id, lang]);
+
   const translations = {
     uz: {
       home: "Bosh sahifa",
       tourDirection: "Sayohat yo'nalishlari",
       visitPlaces: "Tashrif buyuriladigan joylar",
-      others: "Boshqalar"
+      distance: "Masofa",
+      transport: "Transport",
+      startPoint: "Boshlanish nuqtasi",
+      step: "Bosqich",
+      ctaTitle: "Bu marshrut sizga yoqdimi?",
+      ctaDesc: "Bizning gidlarimiz sizga ushbu sayohatni eng yaxshi tarzda tashkil etib berishadi.",
+      ctaOrder: "Buyurtma berish",
+      ctaAll: "Barchasi",
+      notFound: "Ma'lumot topilmadi",
+      backToRoutes: "Yo'nalishlarga qaytish",
+      viewOnMap: "Xaritada ko'rish"
     },
     ru: {
       home: "Главная",
       tourDirection: "Направления путешествий",
       visitPlaces: "Места для посещения",
-      others: "Смотрите также"
+      distance: "Расстояние",
+      transport: "Транспорт",
+      startPoint: "Точка старта",
+      step: "Этап",
+      ctaTitle: "Вам понравился этот маршрут?",
+      ctaDesc: "Наши гиды помогут вам организовать это путешествие наилучшим образом.",
+      ctaOrder: "Забронировать",
+      ctaAll: "Все направления",
+      notFound: "Информация не найдена",
+      backToRoutes: "Назад к направлениям",
+      viewOnMap: "Посмотреть на карте"
     },
     en: {
       home: "Home page",
       tourDirection: "Travel directions",
       visitPlaces: "Places to visit",
-      others: "See also"
+      distance: "Distance",
+      transport: "Transport",
+      startPoint: "Starting point",
+      step: "Stage",
+      ctaTitle: "Did you like this route?",
+      ctaDesc: "Our guides will help you organize this trip in the best possible way.",
+      ctaOrder: "Book now",
+      ctaAll: "All directions",
+      notFound: "Information not found",
+      backToRoutes: "Back to directions",
+      viewOnMap: "View on map"
     }
   };
 
   const t = translations[lang] || translations.uz;
 
-  const tourData = {
-    name_uz: "Toshkent shahri bo'ylab", name_ru: "По городу Ташкент", name_en: "Around Tashkent city",
-    description_uz: [
-      "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining markazi bo'lib, har bir sayyohni sehrli ertaklar olamiga yetaklaydi. Bu yerda siz Samarqandning moviy gumbazlari ostida tarixdagi ulug'vorlikni his qilsangiz, Buxoroning qadimiy ko'chalari va Xivaning \"ochiq osmon ostidagi muzey\" deb ataluvchi Ichan-qal'asida vaqt to'xtab qolgandek tasavvurga ega bo'lasiz.",
-      "O'zbekiston nafaqat o'zining noyob me'moriy obidalari, balki butun dunyoga mashhur mehmondo'stligi bilan ham mashhurdir."
-    ],
-    description_ru: [
-      "Сердце Великого Шелкового пути, соединяющее Восток и Запад, ведет каждого туриста в мир волшебных сказок. Здесь вы почувствуете величие истории под голубыми куполами Самарканда, а на древних улицах Бухары и в Ичан-Кале Хивы вам покажется, что время остановилось.",
-      "Узбекистан славится не только своими уникальными архитектурными памятниками, но и всемирно известным гостеприимством."
-    ],
-    description_en: [
-      "The center of the Great Silk Road connecting East and West, leading every tourist into a world of magical fairy tales. Here you will feel the grandeur of history under the blue domes of Samarkand, and time seems to stand still in the ancient streets of Bukhara and the \"open-air museum\" Ichan-Kala of Khiva.",
-      "Uzbekistan is famous not only for its unique architectural monuments, but also for its world-famous hospitality."
-    ],
-    mainImage: "https://placehold.co/1200x800/111111/444444?text=Humo+Arena+Main",
-    visitPlaces: [
-      { id: 1, name_uz: "Ko'kaldosh madrasasi", name_ru: "Медресе Кукельдаш", name_en: "Kukeldash Madrasah", image: "https://placehold.co/600x800/1e3a8a/ffffff?text=Kokaldosh" },
-      { id: 2, name_uz: "Chorsu bozori", name_ru: "Рынок Чорсу", name_en: "Chorsu Bazaar", image: "https://placehold.co/600x800/065f46/ffffff?text=Chorsu" },
-      { id: 3, name_uz: "Amir Temur xiyoboni", name_ru: "Сквер Амира Темура", name_en: "Amir Temur Square", image: "https://placehold.co/600x800/1e293b/ffffff?text=Amir+Temur" },
-      { id: 4, name_uz: "Toshkent metrosi", name_ru: "Ташкентское метро", name_en: "Tashkent Metro", image: "https://placehold.co/600x800/333/ffffff?text=Metro" },
-      { id: 5, name_uz: "Eski shahar", name_ru: "Старый город", name_en: "Old City", image: "https://placehold.co/600x800/4c1d95/ffffff?text=Old+City" },
-      { id: 6, name_uz: "Hazrati Imom majmuasi", name_ru: "Комплекс Хазрат Имам", name_en: "Hazrat Imam Complex", image: "https://placehold.co/600x800/7c2d12/ffffff?text=Hazrati+Imom" }
-    ],
-    others: [
-      { id: 101, name_uz: "Samarqand sirlari", name_ru: "Тайны Самарканда", name_en: "Secrets of Samarkand", image: "https://placehold.co/800x600/111/fff?text=Samarkand" },
-      { id: 102, name_uz: "Qadimiy Buxoro", name_ru: "Древняя Бухара", name_en: "Ancient Bukhara", image: "https://placehold.co/800x600/222/fff?text=Bukhara" },
-      { id: 103, name_uz: "Xiva ertaklari", name_ru: "Сказки Хивы", name_en: "Tales of Khiva", image: "https://placehold.co/800x600/333/fff?text=Khiva" }
-    ]
-  };
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-black flex items-center justify-center'>
+        <div className='w-12 h-12 border-4 border-[#2552A1] border-t-transparent rounded-full animate-spin'></div>
+      </div>
+    );
+  }
 
-  const getTranslated = (item, field) => {
-    return item[`${field}_${lang}`] || item[`${field}_uz`] || '';
-  };
+  if (!route) {
+    return (
+      <div className='min-h-screen bg-black flex flex-col items-center justify-center text-center px-5'>
+        <Warning size={48} className='text-gray-500 mb-6' />
+        <h2 className='text-white text-2xl font-bold'>{t.notFound}</h2>
+        <Link to="/tour_direction" className='mt-8 text-[#2552A1] font-bold'>{t.backToRoutes}</Link>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen bg-black font-inter overflow-x-hidden'>
@@ -80,21 +119,23 @@ const TourDirectionDetail = () => {
             <CaretRight size={14} weight='bold' />
             <Link to="/tour_direction" className='hover:text-[#2552A1] transition-colors'>{t.tourDirection}</Link>
             <CaretRight size={14} weight='bold' />
-            <span className='text-gray-300'>{getTranslated(tourData, 'name')}</span>
+            <span className='text-gray-300'>{getTranslated(route.title)}</span>
           </nav>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-start'>
-            {/* Main Image - Now on top in mobile */}
             <motion.div 
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className='aspect-[16/10] md:aspect-auto md:h-[450px] rounded-[30px] overflow-hidden shadow-2xl border border-white/5 order-1 lg:order-2'
+              className='aspect-[16/10] md:aspect-auto md:h-[500px] rounded-[30px] overflow-hidden shadow-2xl border border-white/5 order-1 lg:order-2'
             >
-              <img src={tourData.mainImage} alt={getTranslated(tourData, 'name')} className='w-full h-full object-cover' />
+              <img 
+                src={route.destination?.hero_image || route.destination?.cover_image} 
+                alt={getTranslated(route.title)} 
+                className='w-full h-full object-cover' 
+              />
             </motion.div>
 
-            {/* Left Info - Now below image in mobile */}
             <motion.div 
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
@@ -102,14 +143,41 @@ const TourDirectionDetail = () => {
               className='flex flex-col order-2 lg:order-1'
             >
               <h1 className='text-white text-[32px] md:text-[56px] font-bold leading-tight mb-8'>
-                {getTranslated(tourData, 'name')}
+                {getTranslated(route.title)}
               </h1>
-              <div className='flex flex-col gap-6 max-w-[650px]'>
-                {getTranslated(tourData, 'description').map((text, i) => (
-                  <p key={i} className='text-gray-400 text-sm md:text-base leading-relaxed font-medium'>
-                    {text}
-                  </p>
-                ))}
+              
+              <div className='flex flex-col gap-6 max-w-[650px] mb-12'>
+                <p className='text-gray-400 text-sm md:text-base leading-relaxed font-medium'>
+                  {getTranslated(route.route_description)}
+                </p>
+                {route.notes && (
+                  <div className='bg-white/5 border-l-4 border-[#2552A1] p-6 rounded-r-2xl'>
+                    <p className='text-gray-300 italic text-sm md:text-base'>
+                      {getTranslated(route.notes)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-8'>
+                <div className='flex items-center gap-4 text-white'>
+                   <div className='p-3 bg-white/5 rounded-2xl'>
+                     <Path size={24} className='text-[#2552A1]' />
+                   </div>
+                   <div className='flex flex-col'>
+                     <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.distance}</span>
+                     <span className='text-xl font-bold'>{route.distance_km} km</span>
+                   </div>
+                </div>
+                <div className='flex items-center gap-4 text-white'>
+                   <div className='p-3 bg-white/5 rounded-2xl'>
+                     <Clock size={24} className='text-[#2552A1]' />
+                   </div>
+                   <div className='flex flex-col'>
+                     <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.transport}</span>
+                     <span className='text-xl font-bold'>{route.transport_type_label}</span>
+                   </div>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -117,52 +185,69 @@ const TourDirectionDetail = () => {
       </section>
 
       {/* Places to Visit Section */}
-      <section className='w-full py-10 md:py-20 px-5 md:px-[60px]'>
-        <h2 className='text-white text-[24px] md:text-[36px] font-bold mb-10 md:mb-16'>
+      <section className='w-full py-10 md:py-20 px-5 md:px-[60px] bg-zinc-950'>
+        <h2 className='text-white text-[28px] md:text-[40px] font-bold mb-10 md:mb-16 text-center'>
           {t.visitPlaces}
         </h2>
         
-        <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8'>
-          {tourData.visitPlaces.map((place, index) => (
-            <motion.div
-              key={place.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className='group relative aspect-[3/4] rounded-[24px] overflow-hidden cursor-pointer shadow-lg'
-            >
-              <img src={place.image} alt={getTranslated(place, 'name')} className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700' />
-              <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent' />
-              <div className='absolute bottom-0 left-0 p-4 md:p-6 w-full'>
-                <p className='text-white text-xs md:text-lg font-bold leading-tight'>{getTranslated(place, 'name')}</p>
-              </div>
-            </motion.div>
-          ))}
+        <div className='max-w-[1200px] mx-auto'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10'>
+            {route.destinations?.map((place, index) => (
+              <motion.div
+                key={place.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link 
+                  to={`/tourist_place/${place.slug}`}
+                  className='group relative flex flex-col rounded-[32px] overflow-hidden bg-white/5 border border-white/10 hover:border-[#2552A1]/50 transition-all duration-500 h-full'
+                >
+                  <div className='aspect-[4/3] overflow-hidden'>
+                    <img src={place.cover_image} alt={getTranslated(place.name)} className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700' />
+                  </div>
+                  <div className='p-8 flex flex-col flex-1'>
+                    <div className='flex items-center justify-between mb-4'>
+                      <span className='text-[#2552A1] font-bold text-sm'>{t.step} {index + 1}</span>
+                      <ArrowRight size={20} className='text-gray-600 group-hover:translate-x-2 transition-transform' />
+                    </div>
+                    <h3 className='text-white text-xl font-bold mb-4'>{getTranslated(place.name)}</h3>
+                    <div className='mt-auto flex items-center gap-2 text-gray-500 text-sm'>
+                      <MapPin size={18} />
+                      <span>{getTranslated(route.destination?.region?.name)}</span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Others Section */}
-      <section className='w-full py-20 px-5 md:px-[60px] bg-white'>
-        <div className='flex items-center justify-between mb-12'>
-          <h2 className='text-zinc-900 text-[24px] md:text-[36px] font-bold'>{t.others}</h2>
-        </div>
-
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-          {tourData.others.map((tour) => (
-            <motion.div
-              key={tour.id}
-              whileHover={{ y: -10 }}
-              className='relative aspect-[16/10] rounded-[30px] overflow-hidden cursor-pointer border border-gray-100 shadow-lg'
-            >
-              <img src={tour.image} alt={getTranslated(tour, 'name')} className='w-full h-full object-cover' />
-              <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60' />
-              <div className='absolute bottom-0 left-0 p-8 w-full'>
-                <p className='text-white text-xl font-bold'>{getTranslated(tour, 'name')}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      {/* CTA Section */}
+      <section className='py-24 px-5 md:px-[60px] bg-white text-center'>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='max-w-[800px] mx-auto'
+        >
+          <h2 className='text-zinc-900 text-3xl md:text-5xl font-bold mb-8'>
+            {t.ctaTitle}
+          </h2>
+          <p className='text-gray-500 text-lg mb-12'>
+            {t.ctaDesc}
+          </p>
+          <div className='flex flex-wrap justify-center gap-6'>
+            <button className='bg-[#2552A1] text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl shadow-[#2552A1]/30 cursor-pointer'>
+              {t.ctaOrder}
+            </button>
+            <Link to="/tour_direction" className='bg-gray-100 text-gray-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors'>
+              {t.ctaAll}
+            </Link>
+          </div>
+        </motion.div>
       </section>
     </div>
   );

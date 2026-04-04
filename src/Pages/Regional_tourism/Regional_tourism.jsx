@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { CaretRight } from '@phosphor-icons/react'
 import { Link } from 'react-router-dom'
+import { regionService } from '../../Services/api'
 
 const Regional_tourism = () => {
+  const [regions, setRegions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
 
   useEffect(() => {
@@ -12,45 +15,55 @@ const Regional_tourism = () => {
     return () => window.removeEventListener('langChange', handleLangChange);
   }, []);
 
+  const getTranslated = (obj) => {
+    if (!obj) return '';
+    if (typeof obj === 'string') return obj;
+    return obj[lang] || obj.uz || '';
+  };
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      setLoading(true);
+      try {
+        const data = await regionService.getRegions();
+        if (data && data.results) {
+          setRegions(data.results);
+        }
+      } catch (error) {
+        console.error('Failed to fetch regions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRegions();
+  }, [lang]);
+
   const translations = {
     uz: {
       home: "Bosh sahifa",
       regionalTourism: "Viloyatlar turizmi",
       title: "Viloyatlar bo'yicha turizm",
-      desc: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining markazi bo'lib, har bir sayyohni sehrli ertaklar olamiga yetaklaydi."
+      desc: "O'zbekistonning har bir go'shasi o'ziga xos tarix va madaniyatga ega.",
+      places: "joylar"
     },
     ru: {
       home: "Главная",
       regionalTourism: "Региональный туризм",
       title: "Туризм по регионам",
-      desc: "Центр Великого Шелкового пути ведет каждого туриста в мир волшебных сказок."
+      desc: "Каждый уголок Узбекистана имеет свою уникальную историю и культуру.",
+      places: "места"
     },
     en: {
       home: "Home page",
       regionalTourism: "Regional tourism",
       title: "Tourism by regions",
-      desc: "The center of the Great Silk Road leads every tourist into a world of magical fairy tales."
+      desc: "Each corner of Uzbekistan has its own unique history and culture.",
+      places: "places"
     }
   };
 
   const t = translations[lang] || translations.uz;
-
-  const regions = [
-    { id: 4, name_uz: "Xiva", name_ru: "Хива", name_en: "Khiva", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1000&auto=format&fit=crop" },
-    { id: 5, name_uz: "Farg'ona", name_ru: "Фергана", name_en: "Fergana", image: "https://images.unsplash.com/photo-1562016600-ece13e8ba570?q=80&w=1000&auto=format&fit=crop" },
-    { id: 6, name_uz: "Andijon", name_ru: "Андижан", name_en: "Andijan", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1000&auto=format&fit=crop" },
-    { id: 7, name_uz: "Namangan", name_ru: "Наманган", name_en: "Namangan", image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1000&auto=format&fit=crop" },
-    { id: 8, name_uz: "Navoiy", name_ru: "Навои", name_en: "Navoi", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1000&auto=format&fit=crop" },
-    { id: 9, name_uz: "Qashqadaryo", name_ru: "Кашкадарья", name_en: "Kashkadarya", image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1000&auto=format&fit=crop" },
-    { id: 10, name_uz: "Surxondaryo", name_ru: "Сурхандарья", name_en: "Surkhandarya", image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000&auto=format&fit=crop" },
-    { id: 11, name_uz: "Jizzax", name_ru: "Джизак", name_en: "Jizzakh", image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1000&auto=format&fit=crop" },
-    { id: 12, name_uz: "Sirdaryo", name_ru: "Сырдарья", name_en: "Syrdarya", image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000&auto=format&fit=crop" },
-    { id: 13, name_uz: "Qoraqalpog'iston", name_ru: "Каракалпакстан", name_en: "Karakalpakstan", image: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=1000&auto=format&fit=crop" }
-  ];
-
-  const getTranslated = (item, field) => {
-    return item[`${field}_${lang}`] || item[`${field}_uz`] || '';
-  };
 
   return (
     <div className='min-h-screen bg-white pt-[110px] md:pt-[140px] pb-40 px-[20px] md:px-[60px]'>
@@ -74,43 +87,51 @@ const Regional_tourism = () => {
         </p>
       </motion.header>
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[25px] md:gap-x-[30px]'>
-        {regions.map((region, index) => {
-          const staggeredClass = (index % 2 !== 0) ? 'sm:mt-[30px]' : ''
-          
-          return (
-            <Link key={region.id} to="/single_city" className={staggeredClass}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: (index % 4) * 0.1 }}
-                whileHover={{ y: -5 }}
-                className={`relative aspect-[4/5] md:aspect-[3/4] rounded-[30px] overflow-hidden group cursor-pointer shadow-lg`}
-              >
-                <div className='absolute inset-0 bg-gray-100'>
-                  <img 
-                    src={region.image} 
-                    alt={getTranslated(region, 'name')} 
-                    className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent' />
-                </div>
+      {loading ? (
+        <div className='flex justify-center py-40'>
+          <div className='w-12 h-12 border-4 border-[#2552A1] border-t-transparent rounded-full animate-spin'></div>
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[25px] md:gap-x-[30px]'>
+          {regions.map((region, index) => {
+            const staggeredClass = (index % 2 !== 0) ? 'sm:mt-[30px]' : '';
+            const name = getTranslated(region.name);
+            
+            return (
+              <Link key={region.id} to={`/regional/${region.slug}`} className={staggeredClass}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: (index % 4) * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className='relative aspect-[4/5] md:aspect-[3/4] rounded-[30px] overflow-hidden group cursor-pointer shadow-lg'
+                >
+                  <div className='absolute inset-0 bg-gray-100'>
+                    <img 
+                      src={region.featured_image} 
+                      alt={name} 
+                      className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+                    />
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent' />
+                  </div>
 
-                <div className='absolute bottom-0 left-0 w-full p-8 z-10'>
-                  <h2 className='font-inter font-bold text-[28px] text-white tracking-tight transform transition-transform group-hover:translate-x-2'>
-                    {getTranslated(region, 'name')}
-                  </h2>
-                </div>
+                  <div className='absolute bottom-0 left-0 w-full p-8 z-10'>
+                    <h2 className='font-inter font-bold text-[28px] text-white tracking-tight transform transition-transform group-hover:translate-x-2'>
+                      {name}
+                    </h2>
+                    <p className='text-white/60 text-sm mt-1 capitalize font-bold'>{t.places}: {region.count}</p>
+                  </div>
 
-                <div className='absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity' />
-              </motion.div>
-            </Link>
-          )
-        })}
-      </div>
+                  <div className='absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity' />
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Regional_tourism
+export default Regional_tourism;

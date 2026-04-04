@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import image_1 from './Images/image_1.jpeg'
 import image_2 from './Images/image_2.svg'
 import image_3 from './Images/image_3.svg'
@@ -9,6 +10,8 @@ import image_6 from './Images/image_6.svg'
 import { FaInstagram, FaFacebookF, FaYoutube } from "react-icons/fa"
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import { IoChevronForwardOutline, IoPauseSharp, IoPlaySharp } from "react-icons/io5"
+import { MapTrifold, Star } from '@phosphor-icons/react'
+import { placesService } from '../../Services/api'
 
 const heroImages = [image_1, image_2, image_3, image_4, image_5, image_6];
 const carouselImages = [image_2, image_4, image_3, image_5, image_6];
@@ -22,15 +25,6 @@ const popularPlaces = [
     { id: 6, img: image_1, title_uz: 'Minorai Kalon', title_ru: 'Минарет Калян', title_en: 'Kalyan Minaret', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." }
 ];
 
-const nearbyPlaces = [
-    { id: 1, img: image_4, title_uz: 'Alisher Navoiy kinoteatri', title_ru: 'Кинотеатр Алишера Навои', title_en: 'Alisher Navoi Cinema', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." },
-    { id: 2, img: image_3, title_uz: 'Amir Temur xiyoboni', title_ru: 'Сквер Амира Темура', title_en: 'Amir Temur Square', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." },
-    { id: 3, img: image_6, title_uz: 'Oloy bozori', title_ru: 'Олойский рынок', title_en: 'Oloy Market', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." },
-    { id: 4, img: image_2, title_uz: 'Toshkent teleminorasi', title_ru: 'Ташкентская телебашня', title_en: 'Tashkent TV Tower', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." },
-    { id: 5, img: image_5, title_uz: 'Registon maydoni', title_ru: 'Площадь Регистан', title_en: 'Registan Square', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." },
-    { id: 6, img: image_1, title_uz: 'Ko\'k gumbazlar', title_ru: 'Голубые купола', title_en: 'Blue Domes', desc_uz: "Sharq va G'arbni tutashtirgan Buyuk Ipak yo'lining...", desc_ru: "Центр Великого Шелкового пути...", desc_en: "The center of the Great Silk Road..." }
-];
-
 const recommendedRoutes = [
     { id: 1, img: image_3, title_uz: '3 kunlik Buxoro sayohati', title_ru: '3-дневный тур по Бухаре', title_en: '3-day Bukhara tour' },
     { id: 2, img: image_4, title_uz: '10 kunlik O\'zbekiston sayohati', title_ru: '10-дневный тур по Узбекистану', title_en: '10-day tour of Uzbekistan' },
@@ -40,8 +34,10 @@ const recommendedRoutes = [
     { id: 6, img: image_2, title_uz: 'Amir Temur izidan 5 kunlik tur', title_ru: '5-дневный тур по следам Амира Темура', title_en: '5-day tour following Amir Temur' }
 ];
 
-const Home = () => {
+const Home = ({ userCoords }) => {
     const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
+    const [nearbyPlaces, setNearbyPlaces] = useState([]);
+    const [isNearLoading, setIsNearLoading] = useState(true);
 
     useEffect(() => {
         const handleLangChange = () => setLang(localStorage.getItem('lang') || 'uz');
@@ -84,22 +80,44 @@ const Home = () => {
         return () => clearInterval(heroTimer);
     }, [isHeroPlaying]);
 
-    // Other auto-play effect
+    // Fetch nearby places
     useEffect(() => {
-        const popMax = isMobile ? popularPlaces.length : popularPlaces.length - 3;
-        const nearMax = isMobile ? nearbyPlaces.length : nearbyPlaces.length - 3;
-        const recMax = isMobile ? recommendedRoutes.length : recommendedRoutes.length - 3;
+        const fetchNearby = async () => {
+            setIsNearLoading(true);
+            try {
+                // Use userCoords or default to Tashkent
+                const lat = userCoords?.lat || 41.2995;
+                const lng = userCoords?.lng || 69.2401;
+                const data = await placesService.getNearbyPlaces(lat, lng);
+                if (data && data.results) {
+                    setNearbyPlaces(data.results);
+                }
+            } catch (error) {
+                console.error('Error fetching nearby places for home:', error);
+            } finally {
+                setIsNearLoading(false);
+            }
+        };
+
+        fetchNearby();
+    }, [userCoords, lang]);
+
+    // Auto-play effects for carousels
+    useEffect(() => {
+        const popMax = isMobile ? popularPlaces.length : Math.max(0, popularPlaces.length - 3);
+        const nearMax = isMobile ? nearbyPlaces.length : Math.max(0, nearbyPlaces.length - 3);
+        const recMax = isMobile ? recommendedRoutes.length : Math.max(0, recommendedRoutes.length - 3);
 
         const timer1 = setInterval(() => {
-            setPopIndex(prev => (prev + 1) % popMax);
+            if (popMax > 0) setPopIndex(prev => (prev + 1) % popMax);
         }, 3000);
 
         const timer2 = setInterval(() => {
-            setNearIndex(prev => (prev + 1) % nearMax);
+            if (nearMax > 0) setNearIndex(prev => (prev + 1) % nearMax);
         }, 3500);
 
         const timer3 = setInterval(() => {
-            setRecIndex(prev => (prev + 1) % recMax);
+            if (recMax > 0) setRecIndex(prev => (prev + 1) % recMax);
         }, 4000);
 
         return () => {
@@ -107,15 +125,15 @@ const Home = () => {
             clearInterval(timer2);
             clearInterval(timer3);
         };
-    }, [isMobile]);
+    }, [isMobile, nearbyPlaces]);
 
-    const handlePopNext = () => setPopIndex(p => Math.min(isMobile ? popularPlaces.length - 1 : popularPlaces.length - 4, p + 1));
+    const handlePopNext = () => setPopIndex(p => Math.min(isMobile ? popularPlaces.length - 1 : Math.max(0, popularPlaces.length - 4), p + 1));
     const handlePopPrev = () => setPopIndex(p => Math.max(0, p - 1));
 
-    const handleNearNext = () => setNearIndex(p => Math.min(isMobile ? nearbyPlaces.length - 1 : nearbyPlaces.length - 4, p + 1));
+    const handleNearNext = () => setNearIndex(p => Math.min(isMobile ? nearbyPlaces.length - 1 : Math.max(0, nearbyPlaces.length - 4), p + 1));
     const handleNearPrev = () => setNearIndex(p => Math.max(0, p - 1));
 
-    const handleRecNext = () => setRecIndex(p => Math.min(isMobile ? recommendedRoutes.length - 1 : recommendedRoutes.length - 4, p + 1));
+    const handleRecNext = () => setRecIndex(p => Math.min(isMobile ? recommendedRoutes.length - 1 : Math.max(0, recommendedRoutes.length - 4), p + 1));
     const handleRecPrev = () => setRecIndex(p => Math.max(0, p - 1));
 
     const translations = {
@@ -140,7 +158,9 @@ const Home = () => {
             bannerTitle: "O‘zbekistonni qaytadan kashf eting!",
             bannerDesc: "Sayohat qilishga tayyormisiz? Birgalikda o‘tmishga sayohat qilamiz.",
             logistics: "Sayohat logistika",
-            recommendedTitle: "Tavsiya etilgan sayohat yo‘nalishlari"
+            recommendedTitle: "Tavsiya etilgan sayohat yo‘nalishlari",
+            nearbyBtn: "Yaqin joylar",
+            distance: "km uzoqlikda"
         },
         ru: {
             heroSupTitle: "Восточные",
@@ -163,7 +183,9 @@ const Home = () => {
             bannerTitle: "Откройте для себя Узбекистан заново!",
             bannerDesc: "Готовы к путешествию? Отправимся в прошлое вместе.",
             logistics: "Логистика путешествий",
-            recommendedTitle: "Рекомендуемые маршруты"
+            recommendedTitle: "Рекомендуемые маршруты",
+            nearbyBtn: "Ближайшие места",
+            distance: "км от вас"
         },
         en: {
             heroSupTitle: "Oriental",
@@ -186,13 +208,24 @@ const Home = () => {
             bannerTitle: "Rediscover Uzbekistan!",
             bannerDesc: "Ready to travel? Let's journey to the past together.",
             logistics: "Travel Logistics",
-            recommendedTitle: "Recommended travel routes"
+            recommendedTitle: "Recommended travel routes",
+            nearbyBtn: "Nearby places",
+            distance: "km away"
         }
     };
 
     const t = translations[lang] || translations.uz;
 
     const getTranslated = (item, field) => {
+        if (!item) return '';
+        // Handle API objects
+        if (item.name && typeof item.name === 'object') {
+            return item.name[lang] || item.name.uz || '';
+        }
+        if (item.short_description && typeof item.short_description === 'object') {
+            return item.short_description[lang] || item.short_description.uz || '';
+        }
+        // Handle hardcoded arrays
         return item[`${field}_${lang}`] || item[`${field}_uz`] || '';
     };
 
@@ -262,9 +295,9 @@ const Home = () => {
                             <h1 className='text-white text-[58px] sm:text-[90px] md:text-[120px] font-bold drop-shadow-2xl tracking-tighter leading-[1.05] md:leading-[1.1]'>
                                 {t.heroTitle}
                             </h1>
-                            <button className='mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
+                            <Link to="/tourist_places" className='mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
                                 {t.details} <IoChevronForwardOutline className='text-[16px] md:text-lg' />
-                            </button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
@@ -360,9 +393,9 @@ const Home = () => {
                     <h2 className="text-[#2c2c2c] text-[32px] md:text-[46px] font-bold mb-4 md:mb-7 tracking-tight leading-tight">
                         {t.aboutTitle}
                     </h2>
-                    <button className="mb-6 px-[24px] md:px-[30px] py-[10px] md:py-[12px] w-max rounded-full bg-[#1b5093] text-white font-medium text-[14px] md:text-[15px] flex items-center gap-2 hover:bg-[#143e75] transition-colors shadow-[0_4px_15px_rgba(27,80,147,0.4)] border-none">
+                    <Link to="/place_info" className="mb-6 px-[24px] md:px-[30px] py-[10px] md:py-[12px] w-max rounded-full bg-[#1b5093] text-white font-medium text-[14px] md:text-[15px] flex items-center gap-2 hover:bg-[#143e75] transition-colors shadow-[0_4px_15px_rgba(27,80,147,0.4)] border-none">
                         {t.details} <IoChevronForwardOutline className="text-[16px] md:text-[17px]" />
-                    </button>
+                    </Link>
                     <p className="text-[#3b3b3b] text-[14px] md:text-[15.5px] leading-[1.7] md:leading-[1.8] font-medium text-justify">
                         {t.aboutText}
                     </p>
@@ -394,11 +427,11 @@ const Home = () => {
                     </div>
 
                     <div className='hidden lg:flex flex-col lg:items-end gap-6'>
-                        <button className="px-8 py-3 rounded-full bg-[#1b5093] text-white font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
+                        <Link to="/tourist_places" className="px-8 py-3 rounded-full bg-[#1b5093] text-white font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
                             {t.all} <IoChevronForwardOutline className="text-[16px]" />
-                        </button>
+                        </Link>
                         <div className='flex gap-2.5 items-center'>
-                            {[...Array(popularPlaces.length - 3)].map((_, idx) => (
+                            {[...Array(Math.max(0, popularPlaces.length - 3))].map((_, idx) => (
                                 <div key={idx} onClick={() => setPopIndex(idx)} className={`w-3 h-3 rounded-full cursor-pointer transition-colors ${idx === popIndex ? 'bg-[#1b5093]' : 'bg-[#e0e0e0] hover:bg-[#ccc]'}`}></div>
                             ))}
                         </div>
@@ -451,9 +484,9 @@ const Home = () => {
                             <div key={idx} onClick={() => setPopIndex(idx)} className={`w-2 h-2 rounded-full cursor-pointer transition-colors ${idx === popIndex ? 'bg-[#1b5093] w-3 h-3' : 'bg-[#e0e0e0] hover:bg-[#ccc]'}`}></div>
                         ))}
                     </div>
-                    <button className="px-8 py-3 rounded-full bg-[#1b5093] w-max text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
+                    <Link to="/tourist_places" className="px-8 py-3 rounded-full bg-[#1b5093] w-max text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
                         {t.all} <IoChevronForwardOutline className="text-[15px]" />
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -468,46 +501,82 @@ const Home = () => {
                             {t.popularDesc}
                         </p>
                     </div>
+                    <div className='hidden lg:flex'>
+                        <Link to="/nearby_places" className="px-8 py-3 rounded-full bg-[#1b5093] text-white font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
+                            {t.nearbyBtn} <IoChevronForwardOutline className="text-[16px]" />
+                        </Link>
+                    </div>
                 </div>
 
                 <div className="relative w-full ml-[5%] md:mx-[8%] md:w-auto pr-[5%] md:pr-0 mt-2 md:mt-4">
-                    <button
-                        onClick={handleNearPrev}
-                        className={`absolute left-[-10px] md:left-[2%] top-1/2 -translate-y-1/2 z-10 w-[38px] md:w-[45px] h-[38px] md:h-[45px] rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-[#1b5093] shadow-md transition-all hover:bg-white border border-gray-100 ${nearIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}
-                    >
-                        <FiChevronLeft className="text-[18px] md:text-xl" />
-                    </button>
-                    <button
-                        onClick={handleNearNext}
-                        className={`absolute right-[-10px] md:right-[2%] top-1/2 -translate-y-1/2 z-10 w-[38px] md:w-[45px] h-[38px] md:h-[45px] rounded-full bg-[#1b5093] flex items-center justify-center text-white shadow-lg transition-all hover:bg-[#143e75] ${(nearIndex >= (isMobile ? nearbyPlaces.length - 1 : nearbyPlaces.length - 4)) ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}
-                    >
-                        <FiChevronRight className="text-[18px] md:text-xl" />
-                    </button>
-
-                    <div className="overflow-hidden w-full relative py-2 md:py-4 my-0 md:-my-4">
-                        <div
-                            className="flex gap-[16px] md:gap-[30px] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                            style={{ transform: `translateX(calc(-${nearIndex} * ${isMobile ? 'calc(80vw + 16px)' : 'calc(25% + 7.5px)'}))` }}
-                        >
-                            {nearbyPlaces.map(place => (
-                                <div
-                                    key={place.id}
-                                    className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] h-[320px] md:h-[380px] rounded-[24px] md:rounded-[30px] overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex-shrink-0"
-                                >
-                                    <img
-                                        src={place.img}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                                        alt={getTranslated(place, 'title')}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#151b26]/90 via-[#151b26]/30 lg:via-[#151b26]/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div className="absolute bottom-5 md:bottom-6 left-5 md:left-6 right-5 md:right-6 flex flex-col gap-1.5 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-                                        <h3 className="text-white text-[17px] md:text-lg font-bold tracking-wide drop-shadow-md">{getTranslated(place, 'title')}</h3>
-                                        <p className="text-white/80 text-[12px] md:text-[13px] leading-snug line-clamp-2 drop-shadow-sm">{getTranslated(place, 'desc')}</p>
-                                    </div>
-                                </div>
-                            ))}
+                    {isNearLoading ? (
+                        <div className='flex justify-center py-20'>
+                            <div className='w-10 h-10 border-4 border-[#1b5093] border-t-transparent rounded-full animate-spin'></div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            <button
+                                onClick={handleNearPrev}
+                                className={`absolute left-[-10px] md:left-[2%] top-1/2 -translate-y-1/2 z-10 w-[38px] md:w-[45px] h-[38px] md:h-[45px] rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-[#1b5093] shadow-md transition-all hover:bg-white border border-gray-100 ${nearIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}
+                            >
+                                <FiChevronLeft className="text-[18px] md:text-xl" />
+                            </button>
+                            <button
+                                onClick={handleNearNext}
+                                className={`absolute right-[-10px] md:right-[2%] top-1/2 -translate-y-1/2 z-10 w-[38px] md:w-[45px] h-[38px] md:h-[45px] rounded-full bg-[#1b5093] flex items-center justify-center text-white shadow-lg transition-all hover:bg-[#143e75] ${(nearIndex >= (isMobile ? nearbyPlaces.length - 1 : nearbyPlaces.length - 4)) ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:scale-105'}`}
+                            >
+                                <FiChevronRight className="text-[18px] md:text-xl" />
+                            </button>
+
+                            <div className="overflow-hidden w-full relative py-2 md:py-4 my-0 md:-my-4">
+                                <div
+                                    className="flex gap-[16px] md:gap-[30px] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                                    style={{ transform: `translateX(calc(-${nearIndex} * ${isMobile ? 'calc(80vw + 16px)' : 'calc(25% + 7.5px)'}))` }}
+                                >
+                                    {nearbyPlaces.map(place => (
+                                        <Link
+                                            to={`/nearby_place/${place.id}`}
+                                            key={place.id}
+                                            className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] h-[320px] md:h-[380px] rounded-[24px] md:rounded-[30px] overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex-shrink-0"
+                                        >
+                                            <img
+                                                src={place.cover_image}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                                                alt={getTranslated(place)}
+                                            />
+                                            
+                                            {/* Badge Overlay */}
+                                            <div className='absolute top-4 left-4 z-20 flex flex-col gap-2'>
+                                                <div className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-[#1b5093] flex items-center gap-1 shadow-sm'>
+                                                    <MapTrifold size={14} weight="bold" />
+                                                    {place.distance_km} {t.distance}
+                                                </div>
+                                                {place.average_rating && (
+                                                    <div className='bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-white flex items-center gap-1 border border-white/10'>
+                                                        <Star size={14} weight="fill" className='text-yellow-400' />
+                                                        {place.average_rating}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#151b26]/90 via-[#151b26]/30 lg:via-[#151b26]/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            <div className="absolute bottom-5 md:bottom-6 left-5 md:left-6 right-5 md:right-6 flex flex-col gap-1.5 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                                                <h3 className="text-white text-[17px] md:text-lg font-bold tracking-wide drop-shadow-md line-clamp-2">{getTranslated(place)}</h3>
+                                                <p className="text-white/80 text-[12px] md:text-[13px] leading-snug line-clamp-2 drop-shadow-sm">
+                                                    {getTranslated(place, 'short_description')}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+                <div className='flex lg:hidden justify-center mt-6'>
+                    <Link to="/nearby_places" className="px-8 py-3 rounded-full bg-[#1b5093] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#143e75] transition-colors shadow-md">
+                        {t.nearbyBtn} <IoChevronForwardOutline className="text-[16px]" />
+                    </Link>
                 </div>
             </div>
 
@@ -543,7 +612,7 @@ const Home = () => {
 
                     <div className='hidden lg:flex flex-col lg:items-end gap-6'>
                         <div className='flex gap-2.5 items-center'>
-                            {[...Array(recommendedRoutes.length - 3)].map((_, idx) => (
+                            {[...Array(Math.max(0, recommendedRoutes.length - 3))].map((_, idx) => (
                                 <div key={idx} onClick={() => setRecIndex(idx)} className={`w-3 h-3 rounded-full cursor-pointer transition-colors ${idx === recIndex ? 'bg-[#1b5093]' : 'bg-[#e0e0e0] hover:bg-[#ccc]'}`}></div>
                             ))}
                         </div>
@@ -574,17 +643,19 @@ const Home = () => {
                                     key={place.id}
                                     className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] flex flex-col group cursor-pointer transition-shadow duration-300 flex-shrink-0"
                                 >
-                                    <div className="w-full h-[220px] md:h-[240px] rounded-[24px] md:rounded-[30px] overflow-hidden relative shadow-sm hover:shadow-lg transition-shadow">
-                                        <img
-                                            src={place.img}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                                            alt={getTranslated(place, 'title')}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col mt-[16px] md:mt-[20px] px-1'>
-                                        <h1 className='font-inter font-[700] text-[18px] md:text-[20px] text-[#303030] leading-tight mb-1 md:mb-2 line-clamp-1 hover:text-[#235094] transition-colors'>{getTranslated(place, 'title')}</h1>
-                                        <h1 className='underline font-inter font-[600] text-[15px] md:text-[16px] text-[#235094] hover:text-[#183a6b] transition-colors'>{t.details}</h1>
-                                    </div>
+                                    <Link to="/tour_direction">
+                                        <div className="w-full h-[220px] md:h-[240px] rounded-[24px] md:rounded-[30px] overflow-hidden relative shadow-sm hover:shadow-lg transition-shadow">
+                                            <img
+                                                src={place.img}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                                                alt={getTranslated(place, 'title')}
+                                            />
+                                        </div>
+                                        <div className='flex flex-col mt-[16px] md:mt-[20px] px-1'>
+                                            <h1 className='font-inter font-[700] text-[18px] md:text-[20px] text-[#303030] leading-tight mb-1 md:mb-2 line-clamp-1 hover:text-[#235094] transition-colors'>{getTranslated(place, 'title')}</h1>
+                                            <h1 className='underline font-inter font-[600] text-[15px] md:text-[16px] text-[#235094] hover:text-[#183a6b] transition-colors'>{t.details}</h1>
+                                        </div>
+                                    </Link>
                                 </div>
                             ))}
                         </div>

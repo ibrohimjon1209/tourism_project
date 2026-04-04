@@ -1,13 +1,45 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CaretRight, NavigationArrow, Phone, Star, X, Clock, MapPin } from '@phosphor-icons/react';
+import { CaretRight, X, Star } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
+import { mapService } from '../../Services/api';
 import yandexTaxi from "./yandex-taxi.png";
 
 const InteractiveMap = () => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [placesLoading, setPlacesLoading] = useState(true);
+  const [places, setPlaces] = useState([]);
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const data = await mapService.getPlaces();
+        if (data && data.results) {
+          const mappedPlaces = data.results.map(item => ({
+            id: item.id,
+            name_uz: item.name.uz,
+            name_ru: item.name.ru,
+            name_en: item.name.en,
+            coords: [parseFloat(item.latitude), parseFloat(item.longitude)],
+            fallbackAddress_uz: item.region_name.uz,
+            fallbackAddress_ru: item.region_name.ru,
+            fallbackAddress_en: item.region_name.en,
+            image: item.cover_image,
+          }));
+          setPlaces(mappedPlaces);
+        }
+      } catch (error) {
+        console.error('Failed to load map places:', error);
+      } finally {
+        setPlacesLoading(false);
+      }
+    };
+
+    fetchPlaces();
+  }, []);
 
   useEffect(() => {
     const handleLangChange = () => setLang(localStorage.getItem('lang') || 'uz');
@@ -62,22 +94,12 @@ const InteractiveMap = () => {
 
   const t = translations[lang] || translations.uz;
 
-  const places = [
-    {
-      id: 1,
-      name_uz: "Ko'kaldosh madrasasi", name_ru: "Медресе Кукельдаш", name_en: "Kukeldash Madrasah",
-      coords: [41.323, 69.24],
-      fallbackAddress_uz: "Toshkent, Alisher Navoiy ko'chasi, 48", fallbackAddress_ru: "Ташкент, улица Алишера Навои, 48", fallbackAddress_en: "Tashkent, Alisher Navoi street, 48",
-      image: "https://placehold.co/600x400/1e3a8a/ffffff?text=Kokaldosh+Madrasasi",
-    }
-  ];
-
   const getTranslated = (item, field) => {
     return item[`${field}_${lang}`] || item[`${field}_uz`] || '';
   };
 
   const initMap = useCallback(() => {
-    if (!window.ymaps) return;
+    if (!window.ymaps || places.length === 0) return;
 
     window.ymaps.ready(() => {
       const mapElement = document.getElementById('map');
@@ -88,6 +110,8 @@ const InteractiveMap = () => {
         zoom: 5,
         controls: ['zoomControl', 'fullscreenControl'],
       });
+
+      mapInstanceRef.current = map;
 
       places.forEach((place) => {
         const placemark = new window.ymaps.Placemark(
@@ -142,18 +166,25 @@ const InteractiveMap = () => {
   }, [places, lang]);
 
   useEffect(() => {
+    if (placesLoading) return;
+
     if (!window.ymaps) {
       const script = document.createElement('script');
-      script.src = 'https://api-maps.yandex.ru/2.1/?lang=uz_UZ'; 
+      const yandexLangField = {
+        uz: 'uz_UZ',
+        ru: 'ru_RU',
+        en: 'en_US'
+      };
+      const yLang = yandexLangField[lang] || 'uz_UZ';
+      script.src = `https://api-maps.yandex.ru/2.1/?lang=${yLang}`; 
       script.async = true;
       script.onload = initMap;
       document.body.appendChild(script);
     } else {
       initMap();
     }
-  }, [initMap]);
+  }, [initMap, placesLoading, lang]);
 
-  // === Button linklari ===
   const openRoute = (coords) => {
     if (!coords) return;
     const [lat, lon] = coords;

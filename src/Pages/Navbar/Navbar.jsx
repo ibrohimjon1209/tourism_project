@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useNavigate } from 'react-router-dom'
+import { searchService } from '../../Services/api'
 import { 
   Globe, MagnifyingGlass, List, CaretDown, Clock, X, 
   InstagramLogo, FacebookLogo, YoutubeLogo,
@@ -27,12 +28,14 @@ const Navbar = () => {
     localStorage.setItem('lang', newLang);
     setLang(newLang);
     window.dispatchEvent(new Event('langChange'));
+    setIsLangOpen(false);
   };
 
   const translations = {
     uz: {
       searchPlaceholder: "Yaqindagi joylarni qidirish...",
       searchHistory: "Qidiruv tarixi",
+      searchResults: "Qidiruv natijalari",
       clear: "Tozalash",
       menu: "Menyu",
       close: "Yopish",
@@ -40,13 +43,16 @@ const Navbar = () => {
       about: "O'zbekiston haqida",
       touristPlaces: "Turistik joylar",
       interactiveMap: "Interaktiv xarita",
+      tourDirection: "Sayohat yo'nalishlari",
       nearbyPlaces: "Yaqindagi turistik obyektlar",
       regional: "Viloyatlar turizmi",
-      contact: "Bog'lanish"
+      contact: "Bog'lanish",
+      selectLang: "Tilni tanlang"
     },
     ru: {
       searchPlaceholder: "Поиск ближайших мест...",
       searchHistory: "История поиска",
+      searchResults: "Результаты поиска",
       clear: "Очистить",
       menu: "Меню",
       close: "Закрыть",
@@ -56,13 +62,14 @@ const Navbar = () => {
       interactiveMap: "Интерактивная карта",
       tourDirection: "Направления",
       nearbyPlaces: "Ближайшие туристические объекты",
-      calculator: "Калькулятор путешествий",
       regional: "Региональный туризм",
-      contact: "Контакты"
+      contact: "Контакты",
+      selectLang: "Выберите язык"
     },
     en: {
       searchPlaceholder: "Search nearby places...",
       searchHistory: "Search history",
+      searchResults: "Search results",
       clear: "Clear",
       menu: "Menu",
       close: "Close",
@@ -72,9 +79,9 @@ const Navbar = () => {
       interactiveMap: "Interactive map",
       tourDirection: "Travel directions",
       nearbyPlaces: "Nearby tourist objects",
-      calculator: "Travel calculator",
       regional: "Regional tourism",
-      contact: "Contact"
+      contact: "Contact",
+      selectLang: "Select language"
     }
   };
 
@@ -98,11 +105,37 @@ const Navbar = () => {
     { label: t.home, icon: House, path: "/" },
     { label: t.about, icon: Info, path: "/place_info" },
     { label: t.touristPlaces, icon: MapPin, path: "/tourist_places" },
+    { label: t.tourDirection, icon: NavigationArrow, path: "/tour_direction" },
     { label: t.interactiveMap, icon: MapTrifold, path: "/map" },
     { label: t.nearbyPlaces, icon: MapPinArea, path: "/nearby_places" },
     { label: t.regional, icon: Compass, path: "/regional" },
     { label: t.contact, icon: Phone, path: "#" }
   ]
+
+  const [suggestions, setSuggestions] = useState([])
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchTerm.trim().length < 2) {
+        setSuggestions([])
+        return
+      }
+      try {
+        const data = await searchService.search(searchTerm, 5)
+        if (data && data.results) {
+          setSuggestions(data.results)
+          setIsSuggestionsOpen(true)
+        }
+      } catch (error) {
+        console.error('Failed to fetch suggestions:', error)
+      }
+    }
+
+    const timer = setTimeout(fetchSuggestions, 300)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,6 +145,7 @@ const Navbar = () => {
     const handleClickOutside = (event) => {
       if (historyRef.current && !historyRef.current.contains(event.target)) {
         setIsHistoryOpen(false)
+        setIsSuggestionsOpen(false)
       }
     }
 
@@ -134,7 +168,13 @@ const Navbar = () => {
       const updatedHistory = [searchTerm, ...searchHistory.filter(h => h !== searchTerm)].slice(0, 5)
       setSearchHistory(updatedHistory)
       localStorage.setItem('searchHistory', JSON.stringify(updatedHistory))
+      
+      // Close all dropdowns
+      setSuggestions([]);
       setIsHistoryOpen(false)
+      setIsSuggestionsOpen(false)
+      
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`)
       e.target.blur()
     }
   }
@@ -182,9 +222,43 @@ const Navbar = () => {
             />
           </div>
 
-          {/* Search History Dropdown */}
+          {/* Search History & Suggestions Dropdown */}
           <AnimatePresence>
-            {isHistoryOpen && searchHistory.length > 0 && (
+            {(isSuggestionsOpen && suggestions.length > 0) ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className='absolute top-[55px] left-0 w-full bg-[#1A1A1A]/95 backdrop-blur-xl rounded-[25px] py-4 shadow-2xl border border-white/10 overflow-hidden z-50'
+              >
+                <div className='px-5 pb-2 border-b border-white/5'>
+                  <span className='text-gray-400 text-sm font-medium'>{t.searchResults}</span>
+                </div>
+                <div className='flex flex-col mt-2'>
+                  {suggestions.map((item) => (
+                    <div 
+                      key={item.id}
+                      onClick={() => {
+                        setIsSuggestionsOpen(false)
+                        setIsHistoryOpen(false)
+                        setSearchTerm('')
+                        navigate(`/tourist_place/${item.slug}`)
+                      }}
+                      className='flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-white/5 transition-colors group'
+                    >
+                      <div className='w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-white/10'>
+                        <img src={item.cover_image} alt="" className='w-full h-full object-cover group-hover:scale-110 transition-transform' />
+                      </div>
+                      <div className='flex flex-col overflow-hidden'>
+                        <span className='text-white font-bold text-[15px] truncate'>{item.name[lang] || item.name.uz}</span>
+                        <span className='text-gray-500 text-xs truncate'>{item.region_name[lang] || item.region_name.uz}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (isHistoryOpen && searchHistory.length > 0 && !searchTerm) && (
               <motion.div 
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -209,6 +283,8 @@ const Navbar = () => {
                       onClick={() => {
                         setSearchTerm(item)
                         setIsHistoryOpen(false)
+                        setIsSuggestionsOpen(false)
+                        navigate(`/search?q=${encodeURIComponent(item)}`)
                       }}
                       className='flex items-center justify-between px-5 py-3 cursor-pointer transition-colors group'
                     >
@@ -259,16 +335,13 @@ const Navbar = () => {
                   transition={{ duration: 0.2 }}
                   className='absolute top-[55px] left-0 w-full bg-[#1A1A1A]/80 backdrop-blur-md rounded-[20px] py-[10px] flex flex-col gap-[5px] z-50 border border-white/10'
                 >
-                  {languages.map((lang) => (
+                  {languages.map((item) => (
                     <div 
-                      key={lang.code}
-                      onClick={() => {
-                        changeLanguage(lang.code)
-                        setIsLangOpen(false)
-                      }}
-                      className='px-[20px] py-[8px] hover:bg-white/10 text-white font-inter font-medium text-[16px] cursor-pointer transition-colors text-center uppercase'
+                      key={item.code}
+                      onClick={() => changeLanguage(item.code)}
+                      className={`px-[20px] py-[8px] hover:bg-white/10 font-inter font-medium text-[16px] cursor-pointer transition-colors text-center uppercase ${lang === item.code ? 'text-[#2552A1]' : 'text-white'}`}
                     >
-                      {lang.label}
+                      {item.label}
                     </div>
                   ))}
                 </motion.div>
@@ -299,13 +372,13 @@ const Navbar = () => {
             animate={{ y: 0 }}
             exit={{ y: '-100%' }}
             transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-            className='fixed inset-0 w-full h-full bg-white z-[200] px-[20px] md:px-[60px] py-[20px] md:py-[40px] flex flex-col'
+            className='fixed inset-0 w-full h-full bg-white z-[200] px-[20px] md:px-[60px] py-[20px] md:pt-[30px] md:pb-[40px] flex flex-col'
           >
             <div className="absolute top-10 right-20 p-10 md:p-20 opacity-[0.03] pointer-events-none select-none overflow-hidden h-full">
               <Compass size={600} weight="thin" className="translate-x-1/4 -translate-y-1/4" />
             </div>
 
-            <div className='flex items-center justify-between relative z-10'>
+            <div className='flex items-center justify-between relative z-10 mb-4'>
               <div className="flex flex-col">
                 <Link to="/" onClick={() => setIsMenuOpen(false)}>
                   <h1 className='font-inter font-bold text-[24px] md:text-[28px] text-[#2552A1] tracking-tight'>UzTurism</h1>
@@ -314,32 +387,32 @@ const Navbar = () => {
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsMenuOpen(false)}
-                className='flex items-center justify-center h-[48px] w-[48px] md:w-auto md:px-6 md:py-3 rounded-full border border-gray-100 bg-white hover:bg-gray-50 shadow-sm transition-all cursor-pointer group'
+                className='flex items-center justify-center h-[44px] w-[44px] md:h-[48px] md:w-auto md:px-6 md:py-3 rounded-full border border-gray-100 bg-white hover:bg-gray-50 shadow-sm transition-all cursor-pointer group'
               >
-                <X size={26} weight='bold' className='text-gray-600 group-hover:rotate-90 transition-transform duration-300 md:size-5' />
-                <span className='text-xs font-inter text-[16px] font-bold text-gray-600 uppercase hidden md:block md:ml-2'>{t.close}</span>
+                <X size={24} weight='bold' className='text-gray-600 group-hover:rotate-90 transition-transform duration-300' />
+                <span className='text-xs font-inter text-[15px] font-bold text-gray-600 uppercase hidden md:block md:ml-2'>{t.close}</span>
               </motion.button>
             </div>
 
-            <div className='flex-1 flex flex-col justify-start md:justify-center items-center my-6 md:my-20 relative z-10 overflow-y-auto custom-scrollbar'>
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 md:gap-y-10 gap-x-12 w-full max-w-[1400px]'>
+            <div className='flex-1 flex flex-col justify-start md:justify-center items-center my-2 md:my-10 relative z-10 overflow-y-auto custom-scrollbar'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-1 md:gap-y-8 gap-x-12 w-full max-w-[1400px]'>
                 {menuItems.map((item, index) => (
                   <motion.div 
                     key={index}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + index * 0.05, duration: 0.4 }}
-                    className='group relative flex items-center gap-4 md:gap-6 cursor-pointer py-3 md:py-0'
+                    transition={{ delay: 0.1 + index * 0.05, duration: 0.4 }}
+                    className='group relative flex items-center gap-3 md:gap-6 cursor-pointer py-2 md:py-0 border-b border-gray-50 md:border-none'
                   >
                     <Link 
                       to={item.path} 
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-4 md:gap-6 w-full"
+                      className="flex items-center gap-3 md:gap-6 w-full"
                     >
-                      <div className="p-3 md:p-3 rounded-[15px] md:rounded-2xl bg-gray-50 group-hover:bg-[#2552A1]/5 group-hover:scale-110 transition-all duration-300">
-                        <item.icon size={26} className="md:size-6 text-gray-400 group-hover:text-[#2552A1] transition-colors" />
+                      <div className="p-2 md:p-3 rounded-[12px] md:rounded-2xl bg-gray-50 group-hover:bg-[#2552A1]/5 transition-all duration-300">
+                        <item.icon size={22} className="md:size-6 text-gray-400 group-hover:text-[#2552A1] transition-colors" />
                       </div>
-                      <span className='font-inter font-bold text-[22px] md:text-[24px] lg:text-[28px] text-gray-800 group-hover:text-[#2552A1] transition-all duration-300 relative whitespace-nowrap overflow-hidden text-ellipsis px-1'>
+                      <span className='font-inter font-bold text-[18px] md:text-[24px] lg:text-[28px] text-gray-800 group-hover:text-[#2552A1] transition-all duration-300 whitespace-nowrap overflow-hidden text-ellipsis'>
                         {item.label}
                       </span>
                     </Link>
@@ -348,8 +421,27 @@ const Navbar = () => {
               </div>
             </div>
 
-            <div className='flex flex-col md:flex-row items-center justify-between -ml-4 gap-6 pb-6 pt-6 border-t border-gray-50 relative z-10 bg-white mt-auto'>
-              <div className='flex items-center gap-4 order-1 md:order-2 px-2'>
+            {/* Language Switcher in Mobile Menu */}
+            <div className='md:hidden flex flex-col gap-4 border-t border-gray-100 mt-auto pt-2 pb-5 relative z-10 bg-white'>
+              <div className='flex items-center gap-3'>
+                {languages.map((item) => (
+                  <button
+                    key={item.code}
+                    onClick={() => changeLanguage(item.code)}
+                    className={`flex-1 py-3 rounded-2xl font-bold text-[14px] transition-all border ${
+                      lang === item.code 
+                        ? 'bg-[#2552A1] text-white border-[#2552A1] shadow-md shadow-[#2552A1]/20' 
+                        : 'bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className='flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-t border-gray-50 relative z-10 bg-white md:mt-auto'>
+              <div className='flex items-center gap-4 w-full md:w-auto justify-center md:justify-start'>
                 {[
                   { icon: InstagramLogo, link: '#' },
                   { icon: FacebookLogo, link: '#' },
@@ -358,15 +450,15 @@ const Navbar = () => {
                   <motion.a 
                     href={social.link}
                     key={idx}
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className='w-11 h-11 md:w-11 md:h-11 rounded-xl bg-gray-50 flex items-center justify-center cursor-pointer text-gray-400 group hover:text-[#2552A1] transition-all'
+                    whileHover={{ y: -5 }}
+                    className='w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#2552A1] transition-all'
                   >
-                    <social.icon size={32} weight="bold" className="group-hover:scale-110 transition-transform" />
+                    <social.icon size={26} weight="bold" />
                   </motion.a>
                 ))}
               </div>
               
-              <div className="order-3 hidden lg:block">
+              <div className="hidden md:block">
                 <span className='font-inter text-[#2552A1] font-bold text-sm tracking-widest uppercase'>uztourism.uz</span>
               </div>
             </div>
