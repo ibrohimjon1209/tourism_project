@@ -379,11 +379,11 @@ const Home = ({ userCoords }) => {
                         );
                     })}
 
-                    <div className="absolute right-[8%] bottom-[15%] z-30 flex gap-4 pointer-events-auto">
-                        <button onClick={handlePrev} className="w-[45px] h-[45px] rounded-full border border-gray-500 bg-transparent flex items-center justify-center text-gray-700 hover:bg-black/5 hover:border-gray-700 transition-all cursor-pointer shadow-sm">
+                    <div className="absolute right-[8%] bottom-[15%]  z-30 flex gap-4 pointer-events-auto">
+                        <button onClick={handlePrev} className=" w-[45px] h-[45px] rounded-full border border-gray-500 bg-transparent flex items-center justify-center text-gray-700 hover:bg-black/5 hover:border-gray-700 transition-all cursor-pointer shadow-sm">
                             <FiChevronLeft className="text-xl" />
                         </button>
-                        <button onClick={handleNext} className="w-[45px] h-[45px] rounded-full border border-gray-500 bg-transparent flex items-center justify-center text-gray-700 hover:bg-black/5 hover:border-gray-700 transition-all cursor-pointer shadow-sm">
+                        <button onClick={handleNext} className=" w-[45px] h-[45px] rounded-full border border-gray-500 bg-transparent flex items-center justify-center text-gray-700 hover:bg-black/5 hover:border-gray-700 transition-all cursor-pointer shadow-sm">
                             <FiChevronRight className="text-xl" />
                         </button>
                     </div>
