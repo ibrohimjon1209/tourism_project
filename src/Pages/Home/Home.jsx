@@ -255,7 +255,7 @@ const Home = ({ userCoords }) => {
                 <div className='absolute z-20 left-[5%] md:left-[8%] top-[45%] -translate-y-1/2 flex flex-col items-start w-[90%] md:w-auto'>
                     {/* Top Controls (Pause & Progress Slider) */}
                     <div className='flex items-center gap-3 md:gap-5 mb-5'>
-                        <button 
+                        <button
                             onClick={toggleHeroPlay}
                             className='w-[36px] md:w-[42px] h-[36px] md:h-[42px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/20 hover:bg-black/50 transition-all duration-300 shadow-lg cursor-pointer'
                         >
@@ -267,12 +267,12 @@ const Home = ({ userCoords }) => {
                         </button>
 
                         <div className='w-[100px] md:w-[160px] h-[3px] md:h-[4px] bg-white/30 rounded-full relative overflow-hidden flex items-center cursor-pointer'>
-                            <motion.div 
+                            <motion.div
                                 className='absolute left-0 h-full bg-white rounded-full'
                                 animate={{ width: `${((heroIndex + 1) / heroImages.length) * 100}%` }}
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
                             />
-                            <motion.div 
+                            <motion.div
                                 className='absolute h-3 w-3 md:w-4 md:h-4 bg-white rounded-full shadow-md'
                                 animate={{ left: `calc(${((heroIndex + 1) / heroImages.length) * 100}% - 6px)` }}
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -281,7 +281,7 @@ const Home = ({ userCoords }) => {
                     </div>
 
                     {/* Headings Display */}
-                    <motion.div 
+                    <motion.div
                         key={`title-${heroIndex}`}
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -304,14 +304,14 @@ const Home = ({ userCoords }) => {
 
                 {/* Bottom Left Navigation */}
                 <div className='absolute z-20 bottom-8 md:bottom-14 left-[5%] md:left-[8%] flex items-center gap-4 md:gap-6'>
-                    <button 
+                    <button
                         onClick={handleHeroPrev}
                         className='w-[45px] md:w-[54px] h-[45px] md:h-[54px] rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-black/60 hover:scale-105 transition-all duration-300 shadow-lg cursor-pointer group'
                     >
                         <FiChevronLeft className='text-xl md:text-2xl group-hover:-translate-x-0.5 transition-transform' />
                     </button>
                     <AnimatePresence mode='wait'>
-                        <motion.span 
+                        <motion.span
                             key={heroIndex}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -321,7 +321,7 @@ const Home = ({ userCoords }) => {
                             {heroIndex + 1}/{heroImages.length}
                         </motion.span>
                     </AnimatePresence>
-                    <button 
+                    <button
                         onClick={handleHeroNext}
                         className='w-[45px] md:w-[54px] h-[45px] md:h-[54px] rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-black/60 hover:scale-105 transition-all duration-300 shadow-lg cursor-pointer group'
                     >
@@ -332,7 +332,7 @@ const Home = ({ userCoords }) => {
                 {/* Bottom Right Title Caption */}
                 <div className='absolute z-20 bottom-10 md:bottom-16 right-[5%] md:right-[8%]'>
                     <AnimatePresence mode='wait'>
-                        <motion.p 
+                        <motion.p
                             key={heroIndex}
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -544,7 +544,7 @@ const Home = ({ userCoords }) => {
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                                                 alt={getTranslated(place)}
                                             />
-                                            
+
                                             {/* Badge Overlay */}
                                             <div className='absolute top-4 left-4 z-20 flex flex-col gap-2'>
                                                 <div className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-[#1b5093] flex items-center gap-1 shadow-sm'>
