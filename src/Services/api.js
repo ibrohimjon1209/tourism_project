@@ -1,5 +1,53 @@
 import axiosInstance from './base';
 
+export const homeService = {
+  getHomeData: async () => {
+    try {
+      const response = await axiosInstance.get('/home/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching home data:', error);
+      throw error;
+    }
+  }
+};
+
+export const aboutService = {
+  getAboutData: async () => {
+    try {
+      const response = await axiosInstance.get('/about/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching about data:', error);
+      throw error;
+    }
+  }
+};
+
+export const cultureService = {
+  getCultures: async () => {
+    try {
+      const response = await axiosInstance.get('/culture/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching cultures:', error);
+      throw error;
+    }
+  }
+};
+
+export const socialMediaService = {
+  getSocialMedia: async () => {
+    try {
+      const response = await axiosInstance.get('/social-media/');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching social media:', error);
+      throw error;
+    }
+  }
+};
+
 export const mapService = {
   getPlaces: async () => {
     try {
