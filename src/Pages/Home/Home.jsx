@@ -351,7 +351,7 @@ const Home = ({ userCoords }) => {
                 </div>
 
                 <div className="w-full lg:hidden mt-8 relative z-30 flex flex-col items-center">
-                    {aboutImages.length > 0 && <img src={aboutImages[activeIndex]} className="w-full sm:w-[90%] h-[260px] sm:h-[350px] object-cover rounded-[24px] mb-6 shadow-xl transition-all duration-300" alt="mobile centered view" />}
+                    {aboutImages.length > 0 && <img src={aboutImages[activeIndex]} className="w-full sm:w-[90%] h-[260px] sm:h-[350px] object- rounded-[24px] mb-6 shadow-xl transition-all duration-300" alt="mobile centered view" />}
                     <div className="flex justify-center gap-5">
                         <button onClick={handlePrev} className="w-[45px] h-[45px] rounded-full border border-gray-400 flex items-center justify-center text-gray-700 hover:bg-gray-100 shadow-sm transition-colors">
                             <FiChevronLeft className='text-lg' />

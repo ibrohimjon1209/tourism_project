@@ -155,7 +155,7 @@ const Place_info = () => {
   };
 
   if (isLoading) {
-      return (
+      return (  
           <div className='w-full min-h-screen flex items-center justify-center bg-white'>
               <div className='w-12 h-12 border-4 border-[#1b5093] border-t-transparent rounded-full animate-spin'></div>
           </div>
