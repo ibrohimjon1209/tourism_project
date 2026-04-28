@@ -245,7 +245,7 @@ const Home = ({ userCoords }) => {
                             <h1 className='text-white text-[50px] sm:text-[70px] md:text-[90px] h-[110px] font-bold drop-shadow-2xl tracking-tighter leading-[1.05] md:leading-[1.1] line-clamp-2 max-w-[800px]'>
                                 {getTranslated(currentHero?.name)}
                             </h1>
-                            <Link to={`/tourist_place/${currentHero?.slug}`} className='mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
+                            <Link to={`/tourist_place/${currentHero?.slug}`} className='w-[50px] mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
                                 {t.details} <IoChevronForwardOutline className='text-[16px] md:text-lg' />
                             </Link>
                         </div>
@@ -286,7 +286,7 @@ const Home = ({ userCoords }) => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.5 }}
-                            className='text-white/90 text-[13px] sm:text-[15px] md:text-[18px] font-medium drop-shadow-lg tracking-wide max-w-[300px] text-right line-clamp-2 hover:text-white transition-colors cursor-default'
+                            className='w-[50vw] text-white/90 text-[13px] sm:text-[15px] md:text-[18px] font-medium drop-shadow-lg tracking-wide max-w-[300px] text-right line-clamp-2 hover:text-white transition-colors cursor-default'
                         >
                             {getTranslated(currentHero?.short_description)}
                         </motion.p>
@@ -405,6 +405,7 @@ const Home = ({ userCoords }) => {
                         <div
                             className="flex gap-[16px] md:gap-[30px] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
                             style={{ transform: `translateX(calc(-${popIndex} * ${isMobile ? 'calc(80vw + 16px)' : 'calc(25% + 7.5px)'}))` }}
+                            
                         >
                             {popularItems.map(place => (
                                 <Link
@@ -560,7 +561,7 @@ const Home = ({ userCoords }) => {
                     </div>
                 </div>
             )}
-    
+
             {/* ----------------- TAVSIYA ETILGAN SAYOHAT YO'NALISHLARI ----------------- */}
             <div className='w-full pt-16 md:pt-[120px] pb-10 overflow-hidden bg-white'>
                 <div className='flex flex-col lg:flex-row justify-between lg:items-end px-[5%] md:px-[8%] gap-4 md:gap-6 mb-6 md:mb-10'>

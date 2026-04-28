@@ -172,7 +172,7 @@ const Footer = () => {
                 {/* Top Section: Title & Cities */}
                 <div className="flex flex-col w-full">
                     <Link to="/" className='mb-8'>
-                        <h2 className="text-[18px] font-bold text-white tracking-wide">UzTourism</h2>
+                        <h2 className="text-[18px] font-bold text-white tracking-wide">GeoTour</h2>
                     </Link>
 
                     <div className="flex w-full mb-8">
