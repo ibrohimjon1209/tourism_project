@@ -204,9 +204,9 @@ const Home = ({ userCoords }) => {
 
                 <div className='absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 lg:via-black/20 to-transparent z-10'></div>
 
-                <div className='absolute z-20 left-[5%] md:left-[8%] top-[45%] -translate-y-1/2 flex flex-col items-start w-[90%] md:w-auto'>
+                <div className='absolute z-20 left-[5%] md:left-[8%] top-[45%] -translate-y-1/2 flex flex-col items-start w-[90%] md:w-auto '>
                     <div className='flex items-center gap-3 md:gap-5 mb-5'>
-                        <button 
+                        <button
                             onClick={toggleHeroPlay}
                             className='w-[36px] md:w-[42px] h-[36px] md:h-[42px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center border border-white/20 hover:bg-black/50 transition-all duration-300 shadow-lg cursor-pointer'
                         >
@@ -218,12 +218,12 @@ const Home = ({ userCoords }) => {
                         </button>
 
                         <div className='w-[100px] md:w-[160px] h-[3px] md:h-[4px] bg-white/30 rounded-full relative overflow-hidden flex items-center cursor-pointer'>
-                            <motion.div 
+                            <motion.div
                                 className='absolute left-0 h-full bg-white rounded-full'
                                 animate={{ width: `${((heroIndex + 1) / heroItems.length) * 100}%` }}
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
                             />
-                            <motion.div 
+                            <motion.div
                                 className='absolute h-3 w-3 md:w-4 md:h-4 bg-white rounded-full shadow-md'
                                 animate={{ left: `calc(${((heroIndex + 1) / heroItems.length) * 100}% - 6px)` }}
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -231,7 +231,7 @@ const Home = ({ userCoords }) => {
                         </div>
                     </div>
 
-                    <motion.div 
+                    <motion.div
                         key={`title-${heroIndex}`}
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -242,25 +242,25 @@ const Home = ({ userCoords }) => {
                             {getTranslated(currentHero?.region, 'name') || t.heroSupTitle}
                         </h2>
                         <div className='flex flex-col md:flex-row items-start md:items-end gap-4 md:gap-10 mt-1 md:mt-2'>
-                            <h1 className='text-white text-[50px] sm:text-[70px] md:text-[90px] font-bold drop-shadow-2xl tracking-tighter leading-[1.05] md:leading-[1.1] line-clamp-2 max-w-[800px]'>
+                            <h1 className='text-white text-[50px] sm:text-[70px] md:text-[90px] h-[110px] font-bold drop-shadow-2xl tracking-tighter leading-[1.05] md:leading-[1.1] line-clamp-2 max-w-[800px]'>
                                 {getTranslated(currentHero?.name)}
                             </h1>
-                            <Link to={`/single_city/${currentHero?.slug}`} className='mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
+                            <Link to={`/tourist_place/${currentHero?.slug}`} className='mb-2 md:mb-6 px-6 md:px-8 py-2.5 md:py-3.5 rounded-full bg-[#275b9f]/90 backdrop-blur-md w-max text-white font-medium text-[14px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#1f4a82] transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
                                 {t.details} <IoChevronForwardOutline className='text-[16px] md:text-lg' />
                             </Link>
                         </div>
                     </motion.div>
                 </div>
 
-                <div className='absolute z-20 bottom-8 md:bottom-14 left-[5%] md:left-[8%] flex items-center gap-4 md:gap-6'>
-                    <button 
+                <div className='absolute z-50 bottom-8 md:bottom-14 left-[5%] md:left-[8%] flex items-center gap-4 md:gap-6'>
+                    <button
                         onClick={handleHeroPrev}
                         className='w-[45px] md:w-[54px] h-[45px] md:h-[54px] rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-black/60 hover:scale-105 transition-all duration-300 shadow-lg cursor-pointer group'
                     >
                         <FiChevronLeft className='text-xl md:text-2xl group-hover:-translate-x-0.5 transition-transform' />
                     </button>
                     <AnimatePresence mode='wait'>
-                        <motion.span 
+                        <motion.span
                             key={heroIndex}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -270,7 +270,7 @@ const Home = ({ userCoords }) => {
                             {heroIndex + 1}/{heroItems.length}
                         </motion.span>
                     </AnimatePresence>
-                    <button 
+                    <button
                         onClick={handleHeroNext}
                         className='w-[45px] md:w-[54px] h-[45px] md:h-[54px] rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-black/60 hover:scale-105 transition-all duration-300 shadow-lg cursor-pointer group'
                     >
@@ -280,7 +280,7 @@ const Home = ({ userCoords }) => {
 
                 <div className='absolute z-20 bottom-10 md:bottom-16 right-[5%] md:right-[8%]'>
                     <AnimatePresence mode='wait'>
-                        <motion.p 
+                        <motion.p
                             key={heroIndex}
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -327,7 +327,7 @@ const Home = ({ userCoords }) => {
                     })}
 
                     {aboutImages.length > 0 && (
-                        <div className="absolute right-[8%] bottom-[15%] z-30 flex gap-4 pointer-events-auto">
+                        <div className="absolute right-[8%] bottom-[20%] z-30 flex gap-4 pointer-events-auto">
                             <button onClick={handlePrev} className=" w-[45px] h-[45px] rounded-full border border-gray-500 bg-transparent flex items-center justify-center text-gray-700 hover:bg-black/5 hover:border-gray-700 transition-all cursor-pointer shadow-sm">
                                 <FiChevronLeft className="text-xl" />
                             </button>
@@ -345,7 +345,7 @@ const Home = ({ userCoords }) => {
                     <Link to="/place_info" className="mb-6 px-[24px] md:px-[30px] py-[10px] md:py-[12px] w-max rounded-full bg-[#1b5093] text-white font-medium text-[14px] md:text-[15px] flex items-center gap-2 hover:bg-[#143e75] transition-colors shadow-[0_4px_15px_rgba(27,80,147,0.4)] border-none">
                         {t.details} <IoChevronForwardOutline className="text-[16px] md:text-[17px]" />
                     </Link>
-                    <p className="text-[#3b3b3b] text-[14px] md:text-[15.5px] leading-[1.7] md:leading-[1.8] font-medium text-justify">
+                    <p className="text-[#3b3b3b]  text-[14px] md:text-[15.5px] leading-[1.7] md:leading-[1.8] font-medium text-justify">
                         {getTranslated(homeData?.about_uzbekistan?.description)}
                     </p>
                 </div>
@@ -408,7 +408,7 @@ const Home = ({ userCoords }) => {
                         >
                             {popularItems.map(place => (
                                 <Link
-                                    to={`/single_city/${place.slug}`}
+                                    to={`/tourist_place/${place.slug}`}
                                     key={place.id}
                                     className="min-w-[85vw] w-[85vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] h-[360px] md:h-[400px] rounded-[24px] md:rounded-[30px] overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex-shrink-0"
                                 >
@@ -487,7 +487,7 @@ const Home = ({ userCoords }) => {
                         >
                             {nearbyItems.map(place => (
                                 <Link
-                                    to={`/nearby_place/${place.id}`}
+                                    to={`/nearby_place/${place.slug}`}
                                     key={place.id}
                                     className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] h-[320px] md:h-[380px] rounded-[24px] md:rounded-[30px] overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex-shrink-0"
                                 >
@@ -496,7 +496,7 @@ const Home = ({ userCoords }) => {
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                                         alt={getTranslated(place.name)}
                                     />
-                                    
+
                                     <div className='absolute top-4 left-4 z-20 flex flex-col gap-2'>
                                         {place.distance_km && (
                                             <div className='bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-[#1b5093] flex items-center gap-1 shadow-sm'>
@@ -544,10 +544,10 @@ const Home = ({ userCoords }) => {
                         <p className='mt-3 md:mt-[10px] font-inter font-[500] text-[15px] md:text-[20px] leading-[1.4] md:leading-[140%] text-[#e2e2e2] md:text-[#d2d2d2] text-center max-w-[90%] md:max-w-none drop-shadow-md'>
                             {getTranslated(bannerData.subtitle)}
                         </p>
-                        
+
                         <div className='flex flex-wrap items-center justify-center gap-4'>
                             {bannerData.cta_primary && (
-                                <Link to={bannerData.cta_primary.url} className='mt-6 md:mt-[24px] px-8 py-3.5 rounded-full bg-[#1b5093] backdrop-blur-md text-white font-medium text-[15px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#143e75] hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
+                                <Link to={'/tourist_places'} className='mt-6 md:mt-[24px] px-8 py-3.5 rounded-full bg-[#1b5093] backdrop-blur-md text-white font-medium text-[15px] md:text-[17px] flex items-center gap-2 md:gap-3 hover:bg-[#143e75] hover:scale-105 transition-all duration-300 shadow-xl border border-white/10'>
                                     {getTranslated(bannerData.cta_primary.label)} <IoChevronForwardOutline className='text-[16px] md:text-lg' />
                                 </Link>
                             )}
@@ -560,7 +560,7 @@ const Home = ({ userCoords }) => {
                     </div>
                 </div>
             )}
-
+    
             {/* ----------------- TAVSIYA ETILGAN SAYOHAT YO'NALISHLARI ----------------- */}
             <div className='w-full pt-16 md:pt-[120px] pb-10 overflow-hidden bg-white'>
                 <div className='flex flex-col lg:flex-row justify-between lg:items-end px-[5%] md:px-[8%] gap-4 md:gap-6 mb-6 md:mb-10'>
@@ -604,31 +604,32 @@ const Home = ({ userCoords }) => {
                             {recommendedItems.map(route => {
                                 const mainImg = route?.destinations?.[0]?.cover_image || "";
                                 return (
-                                <div
-                                    key={route.id}
-                                    className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] flex flex-col group cursor-pointer transition-shadow duration-300 flex-shrink-0"
-                                >
-                                    <Link to={`/tour_direction`}>
-                                        <div className="w-full h-[220px] md:h-[240px] rounded-[24px] md:rounded-[30px] overflow-hidden relative shadow-sm hover:shadow-lg transition-shadow bg-gray-100">
-                                            {mainImg && (
-                                                <img
-                                                src={mainImg}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                                                alt={getTranslated(route.title)}
-                                                />
-                                            )}
-                                        </div>
-                                        <div className='flex flex-col mt-[16px] md:mt-[20px] px-1'>
-                                            <h1 className='font-inter font-[700] text-[18px] md:text-[20px] text-[#303030] leading-tight mb-1 md:mb-2 line-clamp-1 hover:text-[#235094] transition-colors'>
-                                                {getTranslated(route.title)}
-                                            </h1>
-                                            <h1 className='underline font-inter font-[600] text-[15px] md:text-[16px] text-[#235094] hover:text-[#183a6b] transition-colors'>
-                                                {t.details}
-                                            </h1>
-                                        </div>
-                                    </Link>
-                                </div>
-                            )})}
+                                    <div
+                                        key={route.id}
+                                        className="min-w-[80vw] w-[80vw] md:min-w-[calc((100%-90px)/4)] md:w-[calc((100%-90px)/4)] flex flex-col group cursor-pointer transition-shadow duration-300 flex-shrink-0"
+                                    >
+                                        <Link to={`/tour_direction`}>
+                                            <div className="w-full h-[220px] md:h-[240px] rounded-[24px] md:rounded-[30px] overflow-hidden relative shadow-sm hover:shadow-lg transition-shadow bg-gray-100">
+                                                {mainImg && (
+                                                    <img
+                                                        src={mainImg}
+                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                                                        alt={getTranslated(route.title)}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className='flex flex-col mt-[16px] md:mt-[20px] px-1'>
+                                                <h1 className='font-inter font-[700] text-[18px] md:text-[20px] text-[#303030] leading-tight mb-1 md:mb-2 line-clamp-1 hover:text-[#235094] transition-colors'>
+                                                    {getTranslated(route.title)}
+                                                </h1>
+                                                <h1 className='underline font-inter font-[600] text-[15px] md:text-[16px] text-[#235094] hover:text-[#183a6b] transition-colors'>
+                                                    {t.details}
+                                                </h1>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

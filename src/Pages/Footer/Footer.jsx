@@ -89,7 +89,7 @@ const Footer = () => {
 
             <div className='hidden md:flex w-full bg-[#1B1B1B] py-[80px] px-5 flex-col items-center'>
                 <Link to="/" className='mb-10 hover:opacity-80 transition-opacity'>
-                    <h1 className='font-inter font-bold text-[28px] text-white tracking-tight uppercase'>UzTourism</h1>
+                    <h1 className='font-inter font-bold text-[28px] text-white tracking-tight uppercase'>GeoTour</h1>
                 </Link>
 
                 <div className="w-full max-w-[900px] flex flex-col gap-8 mb-12">

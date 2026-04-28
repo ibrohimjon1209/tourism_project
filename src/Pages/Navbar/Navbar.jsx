@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { searchService } from '../../Services/api'
-import { 
-  Globe, MagnifyingGlass, List, CaretDown, Clock, X, 
+import {
+  Globe, MagnifyingGlass, List, CaretDown, Clock, X,
   InstagramLogo, FacebookLogo, YoutubeLogo,
-  House, Info, MapPin, MapTrifold, NavigationArrow, 
+  House, Info, MapPin, MapTrifold, NavigationArrow,
   Compass, Calculator, Phone, MapPinArea
 } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,11 +12,28 @@ import { motion, AnimatePresence } from 'framer-motion'
 const Navbar = () => {
   const location = useLocation()
   const isHomePage = location.pathname === '/'
-  
+  const [homeData, setHomeData] = useState(null);
+
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'uz');
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await homeService.getHomeData();
+        setHomeData(data);
+      } catch (error) {
+        console.error("Home data fetching error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
 
   useEffect(() => {
     const handleLangChange = () => setLang(localStorage.getItem('lang') || 'uz');
@@ -80,7 +97,7 @@ const Navbar = () => {
       tourDirection: "Travel directions",
       nearbyPlaces: "Nearby tourist objects",
       regional: "Regional tourism",
-      contact: "Contact",
+      // contact: "Contact",
       selectLang: "Select language"
     }
   };
@@ -109,7 +126,7 @@ const Navbar = () => {
     { label: t.interactiveMap, icon: MapTrifold, path: "/map" },
     { label: t.nearbyPlaces, icon: MapPinArea, path: "/nearby_places" },
     { label: t.regional, icon: Compass, path: "/regional" },
-    { label: t.contact, icon: Phone, path: "#" }
+    // { label: t.contact, icon: Phone, path: "#" }
   ]
 
   const [suggestions, setSuggestions] = useState([])
@@ -141,7 +158,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
     }
-    
+
     const handleClickOutside = (event) => {
       if (historyRef.current && !historyRef.current.contains(event.target)) {
         setIsHistoryOpen(false)
@@ -168,12 +185,12 @@ const Navbar = () => {
       const updatedHistory = [searchTerm, ...searchHistory.filter(h => h !== searchTerm)].slice(0, 5)
       setSearchHistory(updatedHistory)
       localStorage.setItem('searchHistory', JSON.stringify(updatedHistory))
-      
+
       // Close all dropdowns
       setSuggestions([]);
       setIsHistoryOpen(false)
       setIsSuggestionsOpen(false)
-      
+
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`)
       e.target.blur()
     }
@@ -201,31 +218,30 @@ const Navbar = () => {
     <>
       <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-[20px] md:px-[60px] transition-all duration-500 z-[100] ${navBgClass()}`}>
         <Link to="/" className='font-inter font-bold text-[24px] text-white whitespace-nowrap cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2'>
-          UzTurism
+          GeoTour
         </Link>
 
         {/* Search Section */}
         <div className='relative hidden md:flex items-center' ref={historyRef}>
-          <div className={`w-full md:w-[350px] lg:w-[480px] h-[48px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-start gap-[15px] px-[20px] transition-all duration-500 ${
-            isScrolled || isHistoryOpen || !isHomePage ? 'border border-white/20' : 'border border-transparent'
-          }`}>
+          <div className={`w-full md:w-[350px] lg:w-[480px] h-[48px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-start gap-[15px] px-[20px] transition-all duration-500 ${isScrolled || isHistoryOpen || !isHomePage ? 'border border-white/20' : 'border border-transparent'
+            }`}>
             <MagnifyingGlass size={24} color='white' weight='bold' />
-            <input 
-              type='text' 
+            <input
+              type='text'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setIsHistoryOpen(true)}
               onClick={() => setIsHistoryOpen(true)}
               onKeyDown={handleKeyDown}
-              placeholder={t.searchPlaceholder} 
-              className='font-inter navbar-search-input text-[16px] text-white bg-transparent outline-none w-full placeholder:text-gray-400' 
+              placeholder={t.searchPlaceholder}
+              className='font-inter navbar-search-input text-[16px] text-white bg-transparent outline-none w-full placeholder:text-gray-400'
             />
           </div>
 
           {/* Search History & Suggestions Dropdown */}
           <AnimatePresence>
             {(isSuggestionsOpen && suggestions.length > 0) ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -237,7 +253,7 @@ const Navbar = () => {
                 </div>
                 <div className='flex flex-col mt-2'>
                   {suggestions.map((item) => (
-                    <div 
+                    <div
                       key={item.id}
                       onClick={() => {
                         setIsSuggestionsOpen(false)
@@ -259,7 +275,7 @@ const Navbar = () => {
                 </div>
               </motion.div>
             ) : (isHistoryOpen && searchHistory.length > 0 && !searchTerm) && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -268,7 +284,7 @@ const Navbar = () => {
               >
                 <div className='flex items-center justify-between px-5 pb-2 border-b border-white/5'>
                   <span className='text-gray-400 text-sm font-medium'>{t.searchHistory}</span>
-                  <button 
+                  <button
                     onClick={clearHistory}
                     className='cursor-pointer text-red-400 text-xs hover:text-red-300 transition-colors capitalize font-bold'
                   >
@@ -277,7 +293,7 @@ const Navbar = () => {
                 </div>
                 <div className='flex flex-col mt-2'>
                   {searchHistory.map((item, index) => (
-                    <motion.div 
+                    <motion.div
                       key={index}
                       whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
                       onClick={() => {
@@ -292,10 +308,10 @@ const Navbar = () => {
                         <Clock size={18} className='text-gray-500 group-hover:text-white transition-colors' />
                         <span className='text-white font-inter text-[15px]'>{item}</span>
                       </div>
-                      <X 
-                        size={16} 
+                      <X
+                        size={16}
                         onClick={(e) => removeHistoryItem(e, item)}
-                        className='text-gray-500 hover:text-red-400 transition-colors' 
+                        className='text-gray-500 hover:text-red-400 transition-colors'
                       />
                     </motion.div>
                   ))}
@@ -307,28 +323,27 @@ const Navbar = () => {
 
         <div className='flex items-center gap-2 md:gap-[15px]'>
           <div className='relative hidden sm:block'>
-            <motion.div 
+            <motion.div
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className={`h-[48px] px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${
-                isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
-              }`}
+              className={`h-[48px] px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
+                }`}
             >
               <Globe size={24} color='white' weight='bold' />
               <span className='font-inter font-medium text-[16px] text-white uppercase select-none'>
                 {languages.find(l => l.code === lang)?.label || 'Uz'}
               </span>
-              <CaretDown 
-                size={18} 
-                className={`transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`} 
-                color='white' 
-                weight='bold' 
+              <CaretDown
+                size={18}
+                className={`transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`}
+                color='white'
+                weight='bold'
               />
             </motion.div>
 
             <AnimatePresence>
               {isLangOpen && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -336,7 +351,7 @@ const Navbar = () => {
                   className='absolute top-[55px] left-0 w-full bg-[#1A1A1A]/80 backdrop-blur-md rounded-[20px] py-[10px] flex flex-col gap-[5px] z-50 border border-white/10'
                 >
                   {languages.map((item) => (
-                    <div 
+                    <div
                       key={item.code}
                       onClick={() => changeLanguage(item.code)}
                       className={`px-[20px] py-[8px] hover:bg-white/10 font-inter font-medium text-[16px] cursor-pointer transition-colors text-center uppercase ${lang === item.code ? 'text-[#2552A1]' : 'text-white'}`}
@@ -349,12 +364,11 @@ const Navbar = () => {
             </AnimatePresence>
           </div>
 
-          <motion.button 
+          <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(true)}
-            className={`h-[48px] md:h-[48px] px-[15px] lg:px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${
-              isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
-            }`}
+            className={`h-[48px] md:h-[48px] px-[15px] lg:px-[20px] rounded-[50px] bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-[10px] hover:bg-[#1A1A1A]/70 transition-all duration-500 cursor-pointer ${isScrolled || !isHomePage ? 'border border-white/20' : 'border border-transparent'
+              }`}
           >
             <List size={24} color='white' weight='bold' />
             <span className='font-inter uppercase text-[16px] font-medium text-white'>
@@ -366,7 +380,7 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div 
+          <motion.div
             key="menu-overlay"
             initial={{ y: '-100%' }}
             animate={{ y: 0 }}
@@ -384,7 +398,7 @@ const Navbar = () => {
                   <h1 className='font-inter font-bold text-[24px] md:text-[28px] text-[#2552A1] tracking-tight'>UzTurism</h1>
                 </Link>
               </div>
-              <motion.button 
+              <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsMenuOpen(false)}
                 className='flex items-center justify-center h-[44px] w-[44px] md:h-[48px] md:w-auto md:px-6 md:py-3 rounded-full border border-gray-100 bg-white hover:bg-gray-50 shadow-sm transition-all cursor-pointer group'
@@ -397,15 +411,15 @@ const Navbar = () => {
             <div className='flex-1 flex flex-col justify-start md:justify-center items-center my-2 md:my-10 relative z-10 overflow-y-auto custom-scrollbar'>
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-1 md:gap-y-8 gap-x-12 w-full max-w-[1400px]'>
                 {menuItems.map((item, index) => (
-                  <motion.div 
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + index * 0.05, duration: 0.4 }}
                     className='group relative flex items-center gap-3 md:gap-6 cursor-pointer py-2 md:py-0 border-b border-gray-50 md:border-none'
                   >
-                    <Link 
-                      to={item.path} 
+                    <Link
+                      to={item.path}
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center gap-3 md:gap-6 w-full"
                     >
@@ -428,11 +442,10 @@ const Navbar = () => {
                   <button
                     key={item.code}
                     onClick={() => changeLanguage(item.code)}
-                    className={`flex-1 py-3 rounded-2xl font-bold text-[14px] transition-all border ${
-                      lang === item.code 
-                        ? 'bg-[#2552A1] text-white border-[#2552A1] shadow-md shadow-[#2552A1]/20' 
-                        : 'bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100'
-                    }`}
+                    className={`flex-1 py-3 rounded-2xl font-bold text-[14px] transition-all border ${lang === item.code
+                      ? 'bg-[#2552A1] text-white border-[#2552A1] shadow-md shadow-[#2552A1]/20'
+                      : 'bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100'
+                      }`}
                   >
                     {item.label}
                   </button>
@@ -443,11 +456,11 @@ const Navbar = () => {
             <div className='flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-t border-gray-50 relative z-10 bg-white md:mt-auto'>
               <div className='flex items-center gap-4 w-full md:w-auto justify-center md:justify-start'>
                 {[
-                  { icon: InstagramLogo, link: '#' },
-                  { icon: FacebookLogo, link: '#' },
-                  { icon: YoutubeLogo, link: '#' }
+                  { icon: InstagramLogo, link: homeData?.social_media?.instagram || "#" },
+                  { icon: FacebookLogo, link: homeData?.social_media?.facebook || "#" },
+                  { icon: YoutubeLogo, link: homeData?.social_media?.youtube || "#" }
                 ].map((social, idx) => (
-                  <motion.a 
+                  <motion.a
                     href={social.link}
                     key={idx}
                     whileHover={{ y: -5 }}
@@ -457,9 +470,9 @@ const Navbar = () => {
                   </motion.a>
                 ))}
               </div>
-              
+
               <div className="hidden md:block">
-                <span className='font-inter text-[#2552A1] font-bold text-sm tracking-widest uppercase'>uztourism.uz</span>
+                <span className='font-inter text-[#2552A1] font-bold text-sm tracking-widest uppercase'>geotourandijan.uz</span>
               </div>
             </div>
           </motion.div>
