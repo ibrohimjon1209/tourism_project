@@ -123,20 +123,20 @@ const TourDirectionDetail = () => {
           </nav>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-start'>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               className='aspect-[16/10] md:aspect-auto md:h-[500px] rounded-[30px] overflow-hidden shadow-2xl border border-white/5 order-1 lg:order-2'
             >
-              <img 
-                src={route.destination?.hero_image || route.destination?.cover_image} 
-                alt={getTranslated(route.title)} 
-                className='w-full h-full object-cover' 
+              <img
+                src={route.destination?.hero_image || route.destination?.cover_image}
+                alt={getTranslated(route.title)}
+                className='w-full h-full object-cover'
               />
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -145,7 +145,7 @@ const TourDirectionDetail = () => {
               <h1 className='text-white text-[32px] md:text-[56px] font-bold leading-tight mb-8'>
                 {getTranslated(route.title)}
               </h1>
-              
+
               <div className='flex flex-col gap-6 max-w-[650px] mb-12'>
                 <p className='text-gray-400 text-sm md:text-base leading-relaxed font-medium'>
                   {getTranslated(route.route_description)}
@@ -161,22 +161,22 @@ const TourDirectionDetail = () => {
 
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-8'>
                 <div className='flex items-center gap-4 text-white'>
-                   <div className='p-3 bg-white/5 rounded-2xl'>
-                     <Path size={24} className='text-[#2552A1]' />
-                   </div>
-                   <div className='flex flex-col'>
-                     <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.distance}</span>
-                     <span className='text-xl font-bold'>{route.distance_km} km</span>
-                   </div>
+                  <div className='p-3 bg-white/5 rounded-2xl'>
+                    <Path size={24} className='text-[#2552A1]' />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.distance}</span>
+                    <span className='text-xl font-bold'>{route.distance_km} km</span>
+                  </div>
                 </div>
                 <div className='flex items-center gap-4 text-white'>
-                   <div className='p-3 bg-white/5 rounded-2xl'>
-                     <Clock size={24} className='text-[#2552A1]' />
-                   </div>
-                   <div className='flex flex-col'>
-                     <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.transport}</span>
-                     <span className='text-xl font-bold'>{route.transport_type_label}</span>
-                   </div>
+                  <div className='p-3 bg-white/5 rounded-2xl'>
+                    <Clock size={24} className='text-[#2552A1]' />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-gray-500 text-[10px] md:text-xs font-bold uppercase tracking-wider'>{t.transport}</span>
+                    <span className='text-xl font-bold'>{route.transport_type_label}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -189,7 +189,7 @@ const TourDirectionDetail = () => {
         <h2 className='text-white text-[28px] md:text-[40px] font-bold mb-10 md:mb-16 text-center'>
           {t.visitPlaces}
         </h2>
-        
+
         <div className='max-w-[1200px] mx-auto'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10'>
             {route.destinations?.map((place, index) => (
@@ -200,7 +200,7 @@ const TourDirectionDetail = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link 
+                <Link
                   to={`/tourist_place/${place.slug}`}
                   className='group relative flex flex-col rounded-[32px] overflow-hidden bg-white/5 border border-white/10 hover:border-[#2552A1]/50 transition-all duration-500 h-full'
                 >
@@ -240,9 +240,11 @@ const TourDirectionDetail = () => {
             {t.ctaDesc}
           </p>
           <div className='flex flex-wrap justify-center gap-6'>
-            <button className='bg-[#2552A1] text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl shadow-[#2552A1]/30 cursor-pointer'>
-              {t.ctaOrder}
-            </button>
+            <Link to='https://taxi.yandex.com/en_am/'>
+              <button className='bg-[#2552A1] text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl shadow-[#2552A1]/30 cursor-pointer'>
+                {t.ctaOrder}
+              </button>
+            </Link>
             <Link to="/tour_direction" className='bg-gray-100 text-gray-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-200 transition-colors'>
               {t.ctaAll}
             </Link>

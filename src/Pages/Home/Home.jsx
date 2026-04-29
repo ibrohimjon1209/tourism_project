@@ -188,7 +188,7 @@ const Home = ({ userCoords }) => {
         <div className='w-full font-sans select-none bg-white overflow-x-hidden'>
 
             {/* ----------------- HERO SECTION ----------------- */}
-            <div className='relative w-full h-[100svh] md:h-[800px] overflow-hidden'>
+            <div className=' relative w-full h-[100svh] md:h-[800px] overflow-hidden'>
                 <AnimatePresence mode="popLayout" initial={false}>
                     <motion.img
                         key={heroIndex}
@@ -278,7 +278,7 @@ const Home = ({ userCoords }) => {
                     </button>
                 </div>
 
-                <div className='absolute z-20 bottom-10 md:bottom-16 right-[5%] md:right-[8%]'>
+                <div className=' absolute z-20 bottom-10 md:bottom-16 right-[5%] md:right-[8%]'>
                     <AnimatePresence mode='wait'>
                         <motion.p
                             key={heroIndex}
@@ -286,7 +286,7 @@ const Home = ({ userCoords }) => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.5 }}
-                            className='w-[50vw] text-white/90 text-[13px] sm:text-[15px] md:text-[18px] font-medium drop-shadow-lg tracking-wide max-w-[300px] text-right line-clamp-2 hover:text-white transition-colors cursor-default'
+                            className='sm:w-[100vw] w-[50vw]  text-white/90 text-[13px] sm:text-[15px] md:text-[18px] font-medium drop-shadow-lg tracking-wide text-right line-clamp-2 hover:text-white transition-colors cursor-default'
                         >
                             {getTranslated(currentHero?.short_description)}
                         </motion.p>
@@ -338,7 +338,7 @@ const Home = ({ userCoords }) => {
                     )}
                 </div>
 
-                <div className="relative z-30 w-full lg:w-[48%] flex flex-col justify-center pointer-events-auto py-4 lg:py-0">
+                <div className="relative z-30 w-full lg:w-[45%] flex flex-col justify-center pointer-events-auto py-4 lg:py-0">
                     <h2 className="text-[#2c2c2c] text-[32px] md:text-[46px] font-bold mb-4 md:mb-7 tracking-tight leading-tight">
                         {getTranslated(homeData?.about_uzbekistan?.title)}
                     </h2>
@@ -405,7 +405,7 @@ const Home = ({ userCoords }) => {
                         <div
                             className="flex gap-[16px] md:gap-[30px] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
                             style={{ transform: `translateX(calc(-${popIndex} * ${isMobile ? 'calc(80vw + 16px)' : 'calc(25% + 7.5px)'}))` }}
-                            
+
                         >
                             {popularItems.map(place => (
                                 <Link

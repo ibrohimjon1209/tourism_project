@@ -18,7 +18,15 @@ const Regional_tourism = () => {
   const getTranslated = (obj) => {
     if (!obj) return '';
     if (typeof obj === 'string') return obj;
-    return obj[lang] || obj.uz || '';
+    return obj[lang] || obj.uz || obj.ru || '';
+  };
+
+  // Rasmni to'g'ri URL ga aylantirish
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://placehold.co/600x800/1e3a8a/ffffff?text=Rasm+yo%27q';
+    
+    if (imagePath.startsWith('http')) return imagePath;
+    return `https://api.geotourandijan.uz${imagePath}`;
   };
 
   useEffect(() => {
@@ -94,11 +102,11 @@ const Regional_tourism = () => {
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[25px] md:gap-x-[30px]'>
           {regions.map((region, index) => {
-            const staggeredClass = (index % 2 !== 0) ? 'sm:mt-[30px]' : '';
             const name = getTranslated(region.name);
+            const imageUrl = getImageUrl(region.featured_image);
             
             return (
-              <Link key={region.id} to={`/regional/${region.slug}`} className={staggeredClass}>
+              <Link key={region.id} to={`/regional/${region.slug}`} className={(index % 2 !== 0) ? 'sm:mt-[30px]' : ''}>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -109,9 +117,12 @@ const Regional_tourism = () => {
                 >
                   <div className='absolute inset-0 bg-gray-100'>
                     <img 
-                      src={region.featured_image} 
+                      src={imageUrl} 
                       alt={name} 
                       className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+                      onError={(e) => {
+                        e.target.src = 'https://placehold.co/600x800/1e3a8a/ffffff?text=Rasm+yo%27q';
+                      }}
                     />
                     <div className='absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent' />
                   </div>
@@ -120,7 +131,9 @@ const Regional_tourism = () => {
                     <h2 className='font-inter font-bold text-[28px] text-white tracking-tight transform transition-transform group-hover:translate-x-2'>
                       {name}
                     </h2>
-                    <p className='text-white/60 text-sm mt-1 capitalize font-bold'>{t.places}: {region.count}</p>
+                    <p className='text-white/60 text-sm mt-1 capitalize font-bold'>
+                      {t.places}: {region.count || 0}
+                    </p>
                   </div>
 
                   <div className='absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity' />

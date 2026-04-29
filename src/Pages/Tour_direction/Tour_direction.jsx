@@ -18,7 +18,32 @@ const Tour_direction = () => {
   const getTranslated = (obj) => {
     if (!obj) return '';
     if (typeof obj === 'string') return obj;
-    return obj[lang] || obj.uz || '';
+    return obj[lang] || obj.uz || obj.ru || '';
+  };
+
+  // Eng yaxshi rasmni olish funksiyasi
+  const getImageUrl = (route) => {
+    if (!route) return '';
+
+    // 1. destinations[0].cover_image (eng ishonchli)
+    if (route.destinations && route.destinations.length > 0) {
+      const firstDest = route.destinations[0];
+      if (firstDest.cover_image) {
+        return firstDest.cover_image.startsWith('http') 
+          ? firstDest.cover_image 
+          : `https://api.geotourandijan.uz${firstDest.cover_image}`;
+      }
+    }
+
+    // 2. preview_image (agar destinations bo'lmasa)
+    if (route.preview_image) {
+      return route.preview_image.startsWith('http') 
+        ? route.preview_image 
+        : `https://api.geotourandijan.uz${route.preview_image}`;
+    }
+
+    // 3. Fallback placeholder
+    return 'https://placehold.co/800x600/1e3a8a/ffffff?text=Rasm+yo%27q';
   };
 
   const translations = {
@@ -67,13 +92,10 @@ const Tour_direction = () => {
         if (data && data.results) {
           setRoutes(data.results);
           
-          // Dynamically extract categories (using transport_type_label as a proxy or if a category field existed)
           const allCats = new Set([t.all]);
           data.results.forEach(item => {
             const catLabel = getTranslated(item.transport_type_label);
-            if (catLabel) {
-              allCats.add(catLabel);
-            }
+            if (catLabel) allCats.add(catLabel);
           });
           setCategories(Array.from(allCats));
         }
@@ -133,47 +155,60 @@ const Tour_direction = () => {
         <div className='flex justify-center py-40'>
           <div className='w-12 h-12 border-4 border-[#2552A1] border-t-transparent rounded-full animate-spin'></div>
         </div>
+      ) : filteredRoutes.length === 0 ? (
+        <div className='text-center py-20 text-gray-500'>
+          <p className='text-xl'>{t.noResults}</p>
+        </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8'>
           <AnimatePresence mode='popLayout'>
-            {filteredRoutes.map((route) => (
-              <motion.div
-                layout
-                key={route.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Link 
-                  to={`/tour_direction/${route.id}`} 
-                  className='group relative block aspect-[4/3] md:aspect-[16/10] rounded-[32px] overflow-hidden cursor-pointer shadow-xl'
+            {filteredRoutes.map((route) => {
+              const imageUrl = getImageUrl(route);
+              
+              return (
+                <motion.div
+                  layout
+                  key={route.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4 }}
                 >
-                  <img 
-                    src={route.preview_image} 
-                    alt={getTranslated(route.title)} 
-                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700'
-                  />
-                  
-                  <div className='absolute top-6 right-6 flex gap-2'>
-                    <div className='bg-white/90 backdrop-blur-md text-[#2552A1] px-4 py-1.5 rounded-full text-xs font-bold'>
-                      {route.distance_km} {t.distance}
+                  <Link 
+                    to={`/tour_direction/${route.id}`} 
+                    className='group relative block aspect-[4/3] md:aspect-[16/10] rounded-[32px] overflow-hidden cursor-pointer shadow-xl'
+                  >
+                    <img 
+                      src={imageUrl} 
+                      alt={getTranslated(route.title)} 
+                      className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700'
+                      onError={(e) => {
+                        e.target.src = 'https://placehold.co/800x600/1e3a8a/ffffff?text=Rasm+topilmadi';
+                      }}
+                    />
+                    
+                    <div className='absolute top-6 right-6'>
+                      {route.distance_km && (
+                        <div className='bg-white/90 backdrop-blur-md text-[#2552A1] px-4 py-1.5 rounded-full text-xs font-bold'>
+                          {route.distance_km} {t.distance}
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity' />
-                  
-                  <div className='absolute bottom-0 left-0 p-6 md:p-10 w-full'>
-                    <h3 className='text-white text-xl md:text-2xl font-bold leading-tight max-w-[90%]'>
-                      {getTranslated(route.title)}
-                    </h3>
-                    <p className='text-gray-300 text-sm mt-2'>
-                      {t.start}: {getTranslated(route.starting_point)}
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity' />
+                    
+                    <div className='absolute bottom-0 left-0 p-6 md:p-10 w-full'>
+                      <h3 className='text-white text-xl md:text-2xl font-bold leading-tight max-w-[90%]'>
+                        {getTranslated(route.title)}
+                      </h3>
+                      <p className='text-gray-300 text-sm mt-2'>
+                        {t.start}: {getTranslated(route.starting_point)}
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       )}

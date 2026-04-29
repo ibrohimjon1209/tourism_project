@@ -25,7 +25,9 @@ const NearbyPlaceDetail = () => {
       directionBtn: "Yo'nalish olish",
       loading: "Yuklanmoqda...",
       error: "Ma'lumot topilmadi",
-      visit: "Ziyorat qilish"
+      visit: "Ziyorat qilish",
+      categoriesTitle: "Tasnif",
+      history: "Tarixi va tavsifi"
     },
     ru: {
       home: "Главная",
@@ -35,7 +37,9 @@ const NearbyPlaceDetail = () => {
       directionBtn: "Проложить маршрут",
       loading: "Загрузка...",
       error: "Информация не найдена",
-      visit: "Посетить"
+      visit: "Посетить",
+      categoriesTitle: "Категория",
+      history: "История и описание"
     },
     en: {
       home: "Home page",
@@ -45,7 +49,9 @@ const NearbyPlaceDetail = () => {
       directionBtn: "Get directions",
       loading: "Loading...",
       error: "Information not found",
-      visit: "Visit"
+      visit: "Visit",
+      categoriesTitle: "Categories",
+      history: "History and description"
     }
   };
 
@@ -54,7 +60,7 @@ const NearbyPlaceDetail = () => {
   const getTranslated = (obj) => {
     if (!obj) return '';
     if (typeof obj === 'string') return obj;
-    return obj[lang] || obj.uz || '';
+    return obj[lang] || obj.uz || obj.ru || '';
   };
 
   useEffect(() => {
@@ -71,7 +77,26 @@ const NearbyPlaceDetail = () => {
     };
 
     fetchDetail();
-  }, [slug, lang]);
+  }, [slug]);
+
+  const getImageUrl = (place) => {
+    if (!place) return '';
+    return place.hero_image || place.cover_image || 'https://placehold.co/800x600/1e3a8a/ffffff?text=Rasm+yo%27q';
+  };
+
+  // Tarixi va tavsifi uchun matnni yig'ish
+  const getHistoryText = () => {
+    if (!place) return '';
+    return (
+      getTranslated(place.info) ||
+      getTranslated(place.history) ||
+      getTranslated(place.overview) ||
+      getTranslated(place.short_description) ||
+      ''
+    );
+  };
+
+  const historyText = getHistoryText();
 
   if (loading) {
     return (
@@ -92,26 +117,33 @@ const NearbyPlaceDetail = () => {
 
   return (
     <div className='min-h-screen bg-white font-inter overflow-x-hidden'>
-      <section className='bg-black w-full pt-[110px] md:pt-[140px] pb-16 md:pb-24 px-[20px] md:px-[60px] overflow-hidden'>
+
+      {/* Hero Section - Qora fon */}
+      <section className='bg-black w-full pt-[110px] md:pt-[140px] pb-16 md:pb-24 px-5 md:px-[60px] overflow-hidden'>
         <div className='w-full flex flex-col'>
           <nav className='flex flex-wrap items-center gap-x-2 gap-y-1 text-gray-400 text-sm md:text-base font-inter mb-6 relative z-10'>
-            <Link to="/" className='hover:text-[#2552A1] transition-colors shrink-0'>{t.home}</Link>
-            <CaretRight size={14} weight='bold' className='shrink-0' />
-            <Link to="/nearby_places" className='hover:text-[#2552A1] transition-colors shrink-0'>{t.nearbyPlaces}</Link>
-            <CaretRight size={14} weight='bold' className='shrink-0' />
-            <span className='text-gray-300 break-words mt-1'>{getTranslated(place.name)}</span>
+            <Link to="/" className='hover:text-[#2552A1] transition-colors'>{t.home}</Link>
+            <CaretRight size={14} weight='bold' />
+            <Link to="/nearby_places" className='hover:text-[#2552A1] transition-colors'>{t.nearbyPlaces}</Link>
+            <CaretRight size={14} weight='bold' />
+            <span className='text-gray-300 break-words'>{getTranslated(place.name)}</span>
           </nav>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center mt-4'>
-            <motion.div 
+            {/* Rasm */}
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className='relative aspect-[7/5] md:aspect-auto md:h-[400px] lg:h-[500px] rounded-[30px] md:rounded-[50px] overflow-hidden bg-white/5 border border-white/10 shadow-2xl order-1 lg:order-2'
             >
-              <img src={place.hero_image || place.cover_image} alt={getTranslated(place.name)} className='w-full h-full object-cover' />
+              <img
+                src={getImageUrl(place)}
+                alt={getTranslated(place.name)}
+                className='w-full h-full object-cover'
+              />
               <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-              
+
               {place.average_rating && (
                 <div className='absolute top-6 right-6 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 flex items-center gap-2'>
                   <Star size={20} weight="fill" className='text-yellow-400' />
@@ -120,27 +152,40 @@ const NearbyPlaceDetail = () => {
               )}
             </motion.div>
 
-            <motion.div 
+            {/* Matn qismi */}
+            <motion.div
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className='flex flex-col relative z-10 order-2 lg:order-1'
             >
-              <div className='flex items-center gap-2 mb-4'>
-                {place.categories?.map(cat => (
-                  <span key={cat.id} className='px-3 py-1 bg-[#2552A1]/20 text-[#2552A1] rounded-full text-xs font-bold uppercase tracking-wider border border-[#2552A1]/30'>
-                    {getTranslated(cat.name)}
-                  </span>
-                ))}
-              </div>
-              
+              {/* Tasnif */}
+              {place.categories && place.categories.length > 0 && (
+                <div className='mb-6'>
+                  <p className='text-[#2552A1] text-xs font-bold tracking-widest uppercase mb-3'>
+                    {t.categoriesTitle}
+                  </p>
+                  <div className='flex flex-wrap gap-2'>
+                    {place.categories.map((cat) => (
+                      <span
+                        key={cat.id || cat.slug}
+                        className='px-4 py-1.5 bg-[#2552A1]/10 text-[#2552A1] rounded-full text-sm font-medium border border-[#2552A1]/20'
+                      >
+                        {getTranslated(cat.name)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <h1 className='font-inter font-bold text-[36px] md:text-[64px] text-white leading-[1.1] mb-2 tracking-tight'>
                 {getTranslated(place.name)}
               </h1>
+
               <p className='text-[#2552A1] font-inter font-bold text-[20px] md:text-[24px] mb-8'>
                 {getTranslated(place.region?.name)}
               </p>
-              
+
               <p className='font-inter text-gray-400 text-sm md:text-base leading-[1.8] max-w-[550px] mb-12 font-medium'>
                 {getTranslated(place.short_description)}
               </p>
@@ -170,8 +215,8 @@ const NearbyPlaceDetail = () => {
               </div>
 
               <div className='flex flex-wrap gap-4'>
-                <motion.a 
-                  href={place.google_maps_url}
+                <motion.a
+                  href={place.google_maps_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
@@ -187,18 +232,21 @@ const NearbyPlaceDetail = () => {
         </div>
       </section>
 
-      {/* Additional content could go here, e.g. detailed description if available */}
-      {place.info && (
-        <section className='w-full py-20 px-[20px] md:px-[60px] bg-white'>
-          <div className='max-w-[900px] mx-auto'>
-            <h2 className='text-[32px] font-bold text-gray-900 mb-8 border-b pb-4'>{t.visit}</h2>
-            <div 
-              className='prose prose-lg text-gray-600 font-medium leading-relaxed'
-              dangerouslySetInnerHTML={{ __html: getTranslated(place.info) }}
-            />
+      {/* ================== TARIXI VA TAVSIFI (Bir xil dizayn) ================== */}
+      {historyText && (
+        <section className='py-20 px-5 md:px-[60px]'>
+          <div className='max-w-full'>
+            <h2 className='text-zinc-900 text-[32px] md:text-[40px] font-bold mb-8'>{t.history}</h2>
+            <div className='flex flex-col gap-6 text-zinc-600 text-[16px] md:text-[18px] leading-relaxed'>
+              <div
+                className='prose prose-lg text-gray-600 font-regular leading-relaxed max-w-none'
+                dangerouslySetInnerHTML={{ __html: historyText }}
+              />
+            </div>
           </div>
         </section>
       )}
+
     </div>
   )
 }

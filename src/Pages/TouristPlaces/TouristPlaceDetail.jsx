@@ -46,7 +46,7 @@ const TouristPlaceDetail = () => {
       const container = scrollContainerRef.current;
       const cardWidth = container.children[0]?.offsetWidth + 24 || 300;
       let newIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
-      
+
       const galleryLength = place?.gallery_images?.length || 0;
       if (newIndex < 0) newIndex = 0;
       if (newIndex >= galleryLength) newIndex = galleryLength > 0 ? galleryLength - 1 : 0;
@@ -140,7 +140,7 @@ const TouristPlaceDetail = () => {
           </nav>
 
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-20 items-center mt-4'>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -150,7 +150,7 @@ const TouristPlaceDetail = () => {
               <div className='absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] pointer-events-none' />
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -160,7 +160,7 @@ const TouristPlaceDetail = () => {
                 {name}
               </h1>
               <p className='text-[#2552A1] font-inter font-bold text-[20px] md:text-[24px] mb-8'>{regionName}</p>
-              
+
               <p className='font-inter text-gray-400 text-sm md:text-base leading-[1.8] max-w-[550px] mb-12 font-medium'>
                 {shortDesc}
               </p>
@@ -185,7 +185,7 @@ const TouristPlaceDetail = () => {
                 </div>
               </div>
 
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.open(place.google_maps_url, '_blank')}
@@ -216,15 +216,20 @@ const TouristPlaceDetail = () => {
           <h2 className='text-[32px] md:text-[40px] font-bold mb-12'>{t.routes}</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
             {routes.map((route) => (
-              <div key={route.id} className='bg-white/5 p-8 rounded-[32px] border border-white/10'>
-                <h3 className='text-2xl font-bold mb-4 text-[#2552A1]'>{getTranslated(route.title, lang)}</h3>
-                <p className='text-gray-400 mb-6'>{getTranslated(route.route_description, lang)}</p>
-                <div className='flex flex-wrap gap-3'>
-                  {route.destinations.map(dest => (
-                    <span key={dest.id} className='bg-white/10 px-4 py-2 rounded-full text-sm font-bold'>{getTranslated(dest.name, lang)}</span>
-                  ))}
+              <Link
+                to={`/tour_direction/${route.id}`}
+                className='group relative block aspect-[4/3] md:aspect-[16/10] rounded-[32px] overflow-hidden cursor-pointer shadow-xl'
+              >
+                <div key={route.id} className='bg-white/5 p-8 rounded-[32px] border border-white/10'>
+                  <h3 className='text-2xl font-bold mb-4 text-[#2552A1]'>{getTranslated(route.title, lang)}</h3>
+                  <p className='text-gray-400 mb-6'>{getTranslated(route.route_description, lang)}</p>
+                  <div className='flex flex-wrap gap-3'>
+                    {route.destinations.map(dest => (
+                      <span key={dest.id} className='bg-white/10 px-4 py-2 rounded-full text-sm font-bold'>{getTranslated(dest.name, lang)}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -236,13 +241,13 @@ const TouristPlaceDetail = () => {
           <div className='flex items-center justify-between mb-12'>
             <h2 className='text-zinc-900 text-[32px] md:text-[40px] font-bold'>{t.gallery}</h2>
             <div className='flex gap-4'>
-              <button 
+              <button
                 onClick={() => scroll('left')}
                 className='w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors cursor-pointer active:scale-90 transition-all'
               >
                 <ArrowLeft size={24} weight='bold' />
               </button>
-              <button 
+              <button
                 onClick={() => scroll('right')}
                 className='w-12 h-12 rounded-full bg-[#2552A1] shadow-lg shadow-[#2552A1]/20 flex items-center justify-center text-white cursor-pointer active:scale-90 transition-all'
               >
@@ -251,7 +256,7 @@ const TouristPlaceDetail = () => {
             </div>
           </div>
 
-          <div 
+          <div
             ref={scrollContainerRef}
             className='flex gap-6 overflow-x-auto no-scrollbar pb-10 md:px-2 scroll-smooth'
           >
