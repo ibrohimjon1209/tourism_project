@@ -160,6 +160,9 @@ const Footer = () => {
                 {/* Copyright Divider */}
                 <div className='w-full max-w-[400px] h-[1px] bg-white/10 mb-10'></div>
 
+                <p className='font-inter font-semibold text-[15px] text-white text-center px-4 mb-2 tracking-wide'>
+                    G'oya muallifi: Matluba Azimova
+                </p>
                 <p className='font-inter font-light text-[14px] text-gray-500 text-center px-4'>
                     {t.copyright}
                 </p>
@@ -245,7 +248,10 @@ const Footer = () => {
                 {/* Footer Bottom / Copyright */}
                 <div className="w-full h-[1px] bg-[#333333] mt-8 mb-6"></div>
 
-                <div className="w-full flex justify-center text-center">
+                <div className="w-full flex flex-col items-center text-center gap-1">
+                    <p className="text-white font-semibold text-[13px] tracking-wide">
+                        G'oya muallifi: Matluba Azimova
+                    </p>
                     <p className="text-[#6c6c6c] text-[11px] tracking-wide">
                         {t.copyright}
                     </p>
